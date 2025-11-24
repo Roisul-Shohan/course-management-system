@@ -12,7 +12,11 @@ public class DBconfig {
         if (database == null) {
             try {
                 if (client == null) {
-                    client = MongoClients.create("mongodb://localhost:27017");
+                    String uri = System.getenv("MONGODB_URI");
+                    if (uri == null || uri.isEmpty()) {
+                        uri = "mongodb://localhost:27017";
+                    }
+                    client = MongoClients.create(uri);
                 }
                 database = client.getDatabase("course_management_system");
             } catch (Exception e) {
