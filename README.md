@@ -66,21 +66,25 @@ A comprehensive web-based application for managing educational courses, students
 ## Usage
 
 1. **Start the Application**:
-   - If using Docker, build and run the container (see Deployment section).
-   - Otherwise, deploy to Tomcat as described in Installation.
+    - If using Docker, build and run the container (see Deployment section).
+    - Otherwise, deploy to Tomcat as described in Installation.
 
 2. **Access the Application**:
-   - Open a web browser and navigate to `http://localhost:8080` (or the deployed URL).
+    - Open a web browser and navigate to `http://localhost:8080` (or the deployed URL).
 
 3. **User Roles**:
-   - **Admin**: Sign up or log in with admin credentials to access the admin dashboard for managing the system.
-   - **Teacher**: Log in to view and manage assigned courses and students.
-   - **Student**: Log in to browse and register for available courses.
+    - **Admin**: Sign up or log in with admin credentials to access the admin dashboard for managing the system.
+    - **Teacher**: Log in to view and manage assigned courses and students.
+    - **Student**: Log in to browse and register for available courses.
 
-4. **Key Actions**:
-   - Admins can add courses, assign teachers, and manage users.
-   - Teachers can view course details and enrolled students.
-   - Students can register for courses and track their enrollments.
+4. **Admin Login**:
+    - To log in as an admin, use the username "admin" and password "aaa".
+    - This provides access to the admin dashboard for full system management.
+
+5. **Key Actions**:
+    - Admins can add courses, assign teachers, and manage users.
+    - Teachers can view course details and enrolled students.
+    - Students can register for courses and track their enrollments.
 
 ## Deployment
 
