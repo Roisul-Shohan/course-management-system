@@ -129,9 +129,12 @@ public class SignInServlet extends HttpServlet {
     private void setJwtCookieAndSession(HttpServletRequest request, HttpServletResponse response, String token, String role, Object userObj) {
         int maxAge = 24 * 60 * 60; // 24 hours
 
-        // Build Set-Cookie header manually to include SameSite and optional Secure flag
+        // Build Set-Cookie header manually. Use SameSite=None only when cookie will be Secure;
+        // otherwise use SameSite=Lax so browsers accept it on non-HTTPS environments.
+        boolean useNone = false;
         StringBuilder cookieBuilder = new StringBuilder();
-        cookieBuilder.append("jwt=").append(token).append("; Path=/; Max-Age=").append(maxAge).append("; HttpOnly; SameSite=None");
+
+        cookieBuilder.append("jwt=").append(token).append("; Max-Age=").append(maxAge).append("; HttpOnly; Path=/");
 
         boolean isSecure = request.isSecure();
         String forwardedProto = request.getHeader("X-Forwarded-Proto");
@@ -140,6 +143,14 @@ public class SignInServlet extends HttpServlet {
         }
         if (isSecure) {
             cookieBuilder.append("; Secure");
+            useNone = true;
+        }
+
+        // Append appropriate SameSite value
+        if (useNone) {
+            cookieBuilder.append("; SameSite=None");
+        } else {
+            cookieBuilder.append("; SameSite=Lax");
         }
 
         response.addHeader("Set-Cookie", cookieBuilder.toString());

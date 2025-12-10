@@ -104,7 +104,7 @@
 
                     <!-- Sign Up Form -->
                     <div>
-                        <form action="SignupServlet" method="post"
+                        <form id="signupForm" action="SignupServlet" method="post"
                             class="bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700 mt-10">
 
                             <h3 class="text-2xl font-bold text-blue-400 mb-6 text-center">Create Account</h3>

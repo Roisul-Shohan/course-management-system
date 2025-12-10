@@ -5,15 +5,22 @@
                 <%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
 
                     <% Cookie[] cookies=request.getCookies(); String token=null; if (cookies !=null) { for (Cookie c :
-                        cookies) { if ("jwt".equals(c.getName())) { token=c.getValue(); break; } } } if (token==null) {
+                        cookies) { if ("jwt".equals(c.getName())) { token=c.getValue(); break; } } }
+                        System.out.println("Teacher.jsp: Cookies
+                        present: " + (cookies != null ? cookies.length : 0)); System.out.println(" Teacher.jsp: Token
+                        found: " + (token != null)); if (token==null) {
+                        System.out.println(" Teacher.jsp: No token, redirecting to signin.jsp");
                         response.sendRedirect("signin.jsp"); return; } String username="" ; String role="" ; try {
-                        Dotenv dotenv=Dotenv.load(); String SECRET=dotenv.get("JWT_SECRET"); DecodedJWT
-                        decoded=JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
-                        username=decoded.getSubject(); role=decoded.getClaim("role").asString();if
-                        (!"teacher".equals(role)) { response.sendRedirect("signin.jsp"); return; }
-                        com.cms.dao.TeacherDAO teacherDAO=new com.cms.dao.TeacherDAO(); com.cms.model.Teacher
-                        teacher=teacherDAO.findByUsername(username); } catch (Exception e) {
-                        response.sendRedirect("signin.jsp"); return; } %>
+                        Dotenv dotenv=Dotenv.load(); String SECRET=dotenv.get("JWT_SECRET");
+                        System.out.println("Teacher.jsp: Verifying token with secret: " + (SECRET != null ? " present"
+                        : "null" )); DecodedJWT decoded=JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
+                        username=decoded.getSubject(); role=decoded.getClaim("role").asString();
+                        System.out.println("Teacher.jsp: JWT valid, username: " + username + " , role: " + role); if
+                        (!" teacher".equals(role)) { System.out.println("Teacher.jsp: Role not teacher, redirecting");
+                        response.sendRedirect("signin.jsp"); return; } com.cms.dao.TeacherDAO teacherDAO=new
+                        com.cms.dao.TeacherDAO(); com.cms.model.Teacher teacher=teacherDAO.findByUsername(username); }
+                        catch (Exception e) { System.out.println("Teacher.jsp: JWT validation
+                        failed: " + e.getMessage()); response.sendRedirect(" signin.jsp"); return; } %>
 
                         <!DOCTYPE html>
                         <html lang="en">
