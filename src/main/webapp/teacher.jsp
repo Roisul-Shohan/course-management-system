@@ -151,9 +151,7 @@
                                         <div id="dashboard-content">
                                             <!-- Welcome Section -->
                                             <div class="mb-8">
-                                                <h1 class="text-3xl font-bold text-blue-300 mb-2">Welcome back, <%=
-                                                        username %>!
-                                                </h1>
+                                                <h1 class="text-3xl font-bold text-blue-300 mb-2">Welcome <%= username %>!</h1>
                                                 <p class="text-gray-400">Manage your courses and update your profile</p>
                                             </div>
 

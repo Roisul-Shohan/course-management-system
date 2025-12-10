@@ -1,8 +1,6 @@
 package com.cms.servlet;
 
-import com.cms.dao.CourseDAO;
-import com.cms.dao.TeacherDAO;
-import org.bson.types.ObjectId;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -10,7 +8,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.bson.types.ObjectId;
+
+import com.cms.dao.CourseDAO;
+import com.cms.dao.TeacherDAO;
 
 @WebServlet("/AssignTeacherServlet")
 @MultipartConfig

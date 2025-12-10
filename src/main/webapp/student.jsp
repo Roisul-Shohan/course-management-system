@@ -1,27 +1,57 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ page import="com.auth0.jwt.JWT" %>
-        <%@ page import="com.auth0.jwt.algorithms.Algorithm" %>
-            <%@ page import="com.auth0.jwt.interfaces.DecodedJWT" %>
-                <%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
-                    <%@ page import="com.cms.model.Student" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.auth0.jwt.JWT" %>
+<%@ page import="com.auth0.jwt.algorithms.Algorithm" %>
+<%@ page import="com.auth0.jwt.interfaces.DecodedJWT" %>
+<%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
+<%@ page import="com.cms.model.Student" %>
 
-                        <% Cookie[] cookies=request.getCookies(); String token=null; if (cookies !=null) { for (Cookie c
-                            : cookies) { if ("jwt".equals(c.getName())) { token=c.getValue(); break; } } }
-                            System.out.println("Student.jsp: Cookies
-                            present: " + (cookies != null ? cookies.length : 0)); System.out.println(" Student.jsp:
-                            Token found: " + (token != null)); if (token==null) { System.out.println(" Student.jsp: No
-                            token, redirecting to signin.jsp"); response.sendRedirect("signin.jsp"); return; } String
-                            username="" ; String role="" ; try { Dotenv dotenv=Dotenv.load(); String
-                            SECRET=dotenv.get("JWT_SECRET"); System.out.println("Student.jsp: Verifying token with
-                            secret: " + (SECRET != null ? " present" : "null" )); DecodedJWT
-                            decoded=JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
-                            username=decoded.getSubject(); role=decoded.getClaim("role").asString();
-                            System.out.println("Student.jsp: JWT valid, username: " + username + " ,
-                            role: " + role); if (!" student".equals(role)) { System.out.println("Student.jsp: Role not
-                            student, redirecting"); response.sendRedirect("signin.jsp"); return; } } catch (Exception e)
-                            { System.out.println("Student.jsp: JWT validation
-                            failed: " + e.getMessage()); response.sendRedirect(" signin.jsp"); return; } %>
-                            <% Student studentObj=(Student) session.getAttribute("student"); %>
+
+<%
+Cookie[] cookies = request.getCookies();
+String token = null;
+
+if (cookies != null) {
+    for (Cookie c : cookies) {
+        if ("jwt".equals(c.getName())) {
+            token = c.getValue();
+            break;
+        }
+    }
+}
+
+if (token == null) {
+    response.sendRedirect("signin.jsp");
+    return;
+}
+
+String username = "";
+String role = "";
+
+try {
+    Dotenv dotenv = Dotenv.load();
+    String SECRET = dotenv.get("JWT_SECRET");
+
+    DecodedJWT decoded = JWT.require(Algorithm.HMAC256(SECRET))
+                            .build()
+                            .verify(token);
+
+    username = decoded.getSubject();
+    role = decoded.getClaim("role").asString();
+
+    if (!"student".equals(role)) {
+        response.sendRedirect("signin.jsp");
+        return;
+    }
+
+} catch (Exception e) {
+    response.sendRedirect("signin.jsp");
+    return;
+}
+%>
+
+<%
+Student studentObj = (Student) session.getAttribute("student");
+%>
 
                                 <!DOCTYPE html>
                                 <html lang="en">
@@ -169,7 +199,7 @@
                                                     <!-- Welcome Section -->
                                                     <div class="mb-8">
                                                         <h1 class="text-3xl font-bold text-blue-300 mb-2">Welcome back,
-                                                            Student!
+                                                            <%= username %>!
                                                         </h1>
                                                         <p class="text-gray-400">Track your academic progress and manage
                                                             your
