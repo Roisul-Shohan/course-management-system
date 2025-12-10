@@ -137,7 +137,11 @@ public class SignInServlet extends HttpServlet {
 
         boolean isSecure = request.isSecure();
         String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        String forwardedSSL = request.getHeader("X-Forwarded-SSL");
         if (!isSecure && forwardedProto != null && forwardedProto.equalsIgnoreCase("https")) {
+            isSecure = true;
+        }
+        if (!isSecure && forwardedSSL != null && "on".equalsIgnoreCase(forwardedSSL)) {
             isSecure = true;
         }
         if (isSecure) {
