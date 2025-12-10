@@ -64,10 +64,20 @@
         <header class="bg-slate-900/80 backdrop-blur-sm border-b border-blue-500/20 sticky top-0 z-50">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">CMS</span>
-                    </div>
-                    <h1 class="text-xl font-bold text-blue-300">COURSE-MANAGEMENT-SYSTEM</h1>
+                    <a href="index.jsp" class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">CMS</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-blue-300">COURSE-MANAGEMENT-SYSTEM</h1>
+                    </a>
+                </div>
+
+                <!-- Right side: Sign Up button -->
+                <div class="flex items-center">
+                    <a href="signup.jsp"
+                        class="ml-4 inline-block px-4 py-2 bg-transparent border border-blue-500 text-blue-300 rounded hover:bg-blue-600 hover:text-white transition-colors">
+                        Sign Up
+                    </a>
                 </div>
 
             </div>
