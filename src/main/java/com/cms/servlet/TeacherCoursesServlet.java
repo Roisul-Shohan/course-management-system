@@ -1,14 +1,9 @@
 package com.cms.servlet;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.cms.dao.CourseDAO;
-import com.cms.dao.TeacherDAO;
-import com.cms.model.Course;
-import com.cms.model.Teacher;
-import io.github.cdimascio.dotenv.Dotenv;
-import org.bson.types.ObjectId;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,10 +11,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.bson.types.ObjectId;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.cms.dao.CourseDAO;
+import com.cms.dao.TeacherDAO;
+import com.cms.model.Course;
+import com.cms.model.Teacher;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @WebServlet("/TeacherCoursesServlet")
 public class TeacherCoursesServlet extends HttpServlet {

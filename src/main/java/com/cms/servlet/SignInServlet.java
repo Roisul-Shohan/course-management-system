@@ -46,7 +46,9 @@ public class SignInServlet extends HttpServlet {
                 boolean passwordValid = BCrypt.checkpw(password, student.getPassword());
 
                 if (!passwordValid) {
-                    response.sendRedirect("signin.jsp?error=invalid_password");
+                    // Forward with error attribute so the signin.jsp can show message immediately
+                    request.setAttribute("error", "invalid_password");
+                    request.getRequestDispatcher("signin.jsp").forward(request, response);
                     return;
                 }
 
@@ -71,7 +73,8 @@ public class SignInServlet extends HttpServlet {
             Teacher teacher = teacherDAO.findByUsername(username);
             if (teacher != null) {
                 if (!BCrypt.checkpw(password, teacher.getPassword())) {
-                    response.sendRedirect("signin.jsp?error=invalid_password");
+                    request.setAttribute("error", "invalid_password");
+                    request.getRequestDispatcher("signin.jsp").forward(request, response);
                     return;
                 }
 
@@ -107,6 +110,8 @@ public class SignInServlet extends HttpServlet {
             }
         }
 
-        response.sendRedirect("signin.jsp?error=user_not_found");
+        // User not found — forward with attribute so page can display message
+        request.setAttribute("error", "user_not_found");
+        request.getRequestDispatcher("signin.jsp").forward(request, response);
     }
 }

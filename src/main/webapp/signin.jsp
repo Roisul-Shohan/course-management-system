@@ -102,17 +102,17 @@
                 </div>
 
                 <!-- Login Form -->
-                <% String error=request.getParameter("error"); String msg="" ; if ("invalid_password".equals(error)) {
+                <% String error = null; if (request.getAttribute("error") != null) { error = (String) request.getAttribute("error"); } else { error = request.getParameter("error"); } String msg="" ; if ("invalid_password".equals(error)) {
                     msg="Password incorrect." ; } else if ("user_not_found".equals(error)) { msg="User not found." ; }
                     else if (error !=null) { msg="Unknown error." ; } %>
                     <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-blue-500/20">
                         <h3 class="text-2xl font-semibold mb-6 text-center">Sign In</h3>
 
                         <% if (msg !=null && !msg.isEmpty()) { %>
-                            <div class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
+                            <div id="error-banner" class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
                                 <%= msg %>
                             </div>
-                            <% } %>
+                        <% } %>
 
                                 <form class="space-y-6" method="post" action="signin">
                                     <div>
@@ -183,6 +183,19 @@
                 &copy; 2025 Course Management System. All rights reserved.
             </div>
         </footer>
+        <script>
+            // Auto-hide error banner after 1 second
+            (function(){
+                const b = document.getElementById('error-banner');
+                if (b) {
+                    setTimeout(()=>{
+                        b.style.transition = 'opacity 300ms ease';
+                        b.style.opacity = '0';
+                        setTimeout(()=> b.remove(), 400);
+                    }, 1000);
+                }
+            })();
+        </script>
     </body>
 
     </html>

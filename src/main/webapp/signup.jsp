@@ -110,10 +110,10 @@
                             <h3 class="text-2xl font-bold text-blue-400 mb-6 text-center">Create Account</h3>
 
                             <% if (msg !=null && !msg.isEmpty()) { %>
-                                <div class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
+                                <div id="error-banner" class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
                                     <%= msg %>
                                 </div>
-                                <% } %>
+                            <% } %>
 
                                     <div class="mb-4">
                                         <label class="block text-gray-300 mb-1">Full Name</label>
@@ -183,6 +183,19 @@
                 &copy; 2025 Course Management System. All rights reserved.
             </div>
         </footer>
+        <script>
+            // Auto-hide error banner after 1 second (signup)
+            (function(){
+                const b = document.getElementById('error-banner');
+                if (b) {
+                    setTimeout(()=>{
+                        b.style.transition = 'opacity 300ms ease';
+                        b.style.opacity = '0';
+                        setTimeout(()=> b.remove(), 400);
+                    }, 1000);
+                }
+            })();
+        </script>
     </body>
 
     </html>

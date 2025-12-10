@@ -86,7 +86,8 @@
                                 <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                                     <div class="flex items-center space-x-2">
                                         <a href="index.jsp" class="flex items-center space-x-2 no-underline">
-                                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <div
+                                                class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                                                 <span class="text-white font-bold text-lg">CMS</span>
                                             </div>
                                             <h1 class="text-xl font-bold text-blue-300">COURSE-MANAGEMENT-SYSTEM</h1>
