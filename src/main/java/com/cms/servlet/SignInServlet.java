@@ -62,18 +62,10 @@ public class SignInServlet extends HttpServlet {
                     String token = JWTconfig.generateToken(student.getUsername(), "student");
                     System.out.println("SignInServlet: JWT token generated for student");
 
-                    Cookie jwtCookie = new Cookie("jwt", token);
-                    jwtCookie.setHttpOnly(true);
-                    jwtCookie.setMaxAge(24 * 60 * 60);
-                    jwtCookie.setPath("/");
-                    response.addCookie(jwtCookie);
-
-                    // Store student object in session
-                    HttpSession session = request.getSession();
-                    session.setAttribute("student", student);
-
+                    // Set cookie (with SameSite and Secure when appropriate) and session, then redirect using context path
+                    setJwtCookieAndSession(request, response, token, "student", student);
                     System.out.println("SignInServlet: Redirecting to student.jsp");
-                    response.sendRedirect("student.jsp");
+                    response.sendRedirect(request.getContextPath() + "/student.jsp");
                     return;
                 }
             } catch (Exception e) {
@@ -100,18 +92,9 @@ public class SignInServlet extends HttpServlet {
                     String token = JWTconfig.generateToken(teacher.getUsername(), "teacher");
                     System.out.println("SignInServlet: JWT token generated for teacher");
 
-                    Cookie jwtCookie = new Cookie("jwt", token);
-                    jwtCookie.setHttpOnly(true);
-                    jwtCookie.setMaxAge(24 * 60 * 60);
-                    jwtCookie.setPath("/");
-                    response.addCookie(jwtCookie);
-
-                    // Store teacher object in session
-                    HttpSession session = request.getSession();
-                    session.setAttribute("teacher", teacher);
-
+                    setJwtCookieAndSession(request, response, token, "teacher", teacher);
                     System.out.println("SignInServlet: Redirecting to teacher.jsp");
-                    response.sendRedirect("teacher.jsp");
+                    response.sendRedirect(request.getContextPath() + "/teacher.jsp");
                     return;
                 }
             } catch (Exception e) {
@@ -127,14 +110,9 @@ public class SignInServlet extends HttpServlet {
                 String token = JWTconfig.generateToken("admin", "admin");
                 System.out.println("SignInServlet: JWT token generated for admin");
 
-                Cookie jwtCookie = new Cookie("jwt", token);
-                jwtCookie.setHttpOnly(true);
-                jwtCookie.setMaxAge(24 * 60 * 60);
-                jwtCookie.setPath("/");
-                response.addCookie(jwtCookie);
-
+                setJwtCookieAndSession(request, response, token, "admin", null);
                 System.out.println("SignInServlet: Redirecting to admin.jsp");
-                response.sendRedirect("admin.jsp");
+                response.sendRedirect(request.getContextPath() + "/admin.jsp");
                 return;
 
             } else {
@@ -146,5 +124,32 @@ public class SignInServlet extends HttpServlet {
         System.out.println("SignInServlet: User not found or invalid role, forwarding to signin.jsp with error");
         request.setAttribute("error", "user_not_found");
         request.getRequestDispatcher("signin.jsp").forward(request, response);
+    }
+
+    private void setJwtCookieAndSession(HttpServletRequest request, HttpServletResponse response, String token, String role, Object userObj) {
+        int maxAge = 24 * 60 * 60; // 24 hours
+
+        // Build Set-Cookie header manually to include SameSite and optional Secure flag
+        StringBuilder cookieBuilder = new StringBuilder();
+        cookieBuilder.append("jwt=").append(token).append("; Path=/; Max-Age=").append(maxAge).append("; HttpOnly; SameSite=None");
+
+        boolean isSecure = request.isSecure();
+        String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        if (!isSecure && forwardedProto != null && forwardedProto.equalsIgnoreCase("https")) {
+            isSecure = true;
+        }
+        if (isSecure) {
+            cookieBuilder.append("; Secure");
+        }
+
+        response.addHeader("Set-Cookie", cookieBuilder.toString());
+
+        if (userObj != null) {
+            HttpSession session = request.getSession();
+            if ("student".equals(role)) session.setAttribute("student", userObj);
+            else if ("teacher".equals(role)) session.setAttribute("teacher", userObj);
+        }
+
+        System.out.println("SignInServlet: JWT cookie set (SameSite=None) secure=" + isSecure);
     }
 }
