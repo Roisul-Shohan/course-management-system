@@ -1,19 +1,19 @@
 package com.cms.servlet;
 
-import com.cms.config.JWTconfig;
-import com.cms.dao.StudentDAO;
-import com.cms.dao.TeacherDAO;
-import com.cms.model.Student;
-import com.cms.model.Teacher;
-
-import org.mindrot.jbcrypt.BCrypt;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import com.cms.config.JWTconfig;
+import com.cms.dao.StudentDAO;
+import com.cms.dao.TeacherDAO;
+import com.cms.model.Student;
+import com.cms.model.Teacher;
 
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet {
@@ -42,30 +42,74 @@ public class SignupServlet extends HttpServlet {
         String confirmpassword = request.getParameter("confirmpassword");
         String role = request.getParameter("role"); // "student" or "teacher"
 
+        // Check if request is AJAX
+        String isAjax = request.getHeader("X-Requested-With");
+        boolean ajax = "XMLHttpRequest".equals(isAjax);
+
         // Process signup parameters
 
         // Check if DAOs are initialized
         if (studentDAO == null || teacherDAO == null) {
             System.err.println("Database connection failed. DAOs not initialized.");
-            response.sendRedirect("signup.jsp?error=database");
-            return;
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Database connection failed\"}");
+                out.flush();
+                return;
+            } else {
+                response.sendRedirect("signup.jsp?error=database");
+                return;
+            }
         }
 
         if (role == null || (!role.equals("student") && !role.equals("teacher"))) {
-            response.sendRedirect("signup.jsp?error=invalidrole");
-            return;
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Please select a valid role\"}");
+                out.flush();
+                return;
+            } else {
+                response.sendRedirect("signup.jsp?error=invalidrole");
+                return;
+            }
         }
 
         // Check if username already exists
         if (role.equals("student") && studentDAO.findByUsername(username) != null) {
-            response.sendRedirect("signup.jsp?error=usernameexists");
-            return;
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Username already exists\"}");
+                out.flush();
+                return;
+            } else {
+                response.sendRedirect("signup.jsp?error=usernameexists");
+                return;
+            }
         } else if (role.equals("teacher") && teacherDAO.findByUsername(username) != null) {
-            response.sendRedirect("signup.jsp?error=usernameexists");
-            return;
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Username already exists\"}");
+                out.flush();
+                return;
+            } else {
+                response.sendRedirect("signup.jsp?error=usernameexists");
+                return;
+            }
         } else if (!password.equals(confirmpassword)) {
-            response.sendRedirect("signup.jsp?error=password");
-            return;
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Password not matched\"}");
+                out.flush();
+                return;
+            } else {
+                response.sendRedirect("signup.jsp?error=password");
+                return;
+            }
         }
 
 
@@ -98,15 +142,30 @@ public class SignupServlet extends HttpServlet {
             jwtCookie.setPath("/");
             response.addCookie(jwtCookie);
 
-            if (role.equals("student")) {
-                response.sendRedirect("student.jsp");
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                String redirectUrl = role.equals("student") ? "student.jsp" : "teacher.jsp";
+                out.print("{\"success\": true, \"redirect\": \"" + redirectUrl + "\"}");
+                out.flush();
             } else {
-                response.sendRedirect("teacher.jsp");
+                if (role.equals("student")) {
+                    response.sendRedirect("student.jsp");
+                } else {
+                    response.sendRedirect("teacher.jsp");
+                }
             }
         } catch (Exception e) {
             System.err.println("SignupServlet: Exception during save: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("signup.jsp?error=unknown");
+            if (ajax) {
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.print("{\"success\": false, \"error\": \"Unknown error\"}");
+                out.flush();
+            } else {
+                response.sendRedirect("signup.jsp?error=unknown");
+            }
         }
 
     }

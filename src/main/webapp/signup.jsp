@@ -109,60 +109,54 @@
 
                             <h3 class="text-2xl font-bold text-blue-400 mb-6 text-center">Create Account</h3>
 
-                            <% if (msg !=null && !msg.isEmpty()) { %>
-                                <div id="error-banner" class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
-                                    <%= msg %>
-                                </div>
-                            <% } %>
+                            <div id="error-banner" class="bg-red-600 text-white p-3 rounded-md mb-4 text-center"
+                                style="display: none;"></div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-gray-300 mb-1">Full Name</label>
-                                        <input type="text" name="fullname"
-                                            class="w-full p-3 rounded bg-slate-700 text-white"
-                                            placeholder="Enter full name" required>
-                                    </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-1">Full Name</label>
+                                <input type="text" name="fullname" class="w-full p-3 rounded bg-slate-700 text-white"
+                                    placeholder="Enter full name" required>
+                            </div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-gray-300 mb-1">Username</label>
-                                        <input type="text" name="username"
-                                            class="w-full p-3 rounded bg-slate-700 text-white"
-                                            placeholder="Enter username" required>
-                                    </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-1">Username</label>
+                                <input type="text" name="username" class="w-full p-3 rounded bg-slate-700 text-white"
+                                    placeholder="Enter username" required>
+                            </div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-gray-300 mb-1">Email</label>
-                                        <input type="email" name="email"
-                                            class="w-full p-3 rounded bg-slate-700 text-white" placeholder="Enter email"
-                                            required>
-                                    </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-1">Email</label>
+                                <input type="email" name="email" class="w-full p-3 rounded bg-slate-700 text-white"
+                                    placeholder="Enter email" required>
+                            </div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-gray-300 mb-1">Password</label>
-                                        <input type="password" name="password"
-                                            class="w-full p-3 rounded bg-slate-700 text-white"
-                                            placeholder="Enter password" required>
-                                    </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-1">Password</label>
+                                <input type="password" name="password"
+                                    class="w-full p-3 rounded bg-slate-700 text-white" placeholder="Enter password"
+                                    required>
+                            </div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-gray-300 mb-1">Confirm Password</label>
-                                        <input type="password" name="confirmpassword"
-                                            class="w-full p-3 rounded bg-slate-700 text-white"
-                                            placeholder="Confirm password" required>
-                                    </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-1">Confirm Password</label>
+                                <input type="password" name="confirmpassword"
+                                    class="w-full p-3 rounded bg-slate-700 text-white" placeholder="Confirm password"
+                                    required>
+                            </div>
 
-                                    <div class="mb-6">
-                                        <label class="block text-gray-300 mb-1">Select Role</label>
-                                        <select name="role" class="w-full p-3 rounded bg-slate-700 text-white" required>
-                                            <option value="">-- Select Role --</option>
-                                            <option value="student">Student</option>
-                                            <option value="teacher">Teacher</option>
-                                        </select>
-                                    </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-300 mb-1">Select Role</label>
+                                <select name="role" class="w-full p-3 rounded bg-slate-700 text-white" required>
+                                    <option value="">-- Select Role --</option>
+                                    <option value="student">Student</option>
+                                    <option value="teacher">Teacher</option>
+                                </select>
+                            </div>
 
-                                    <button type="submit"
-                                        class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded text-white font-bold">
-                                        Create Account
-                                    </button>
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded text-white font-bold">
+                                Create Account
+                            </button>
                         </form>
 
                         <div class="mt-6 text-center">
@@ -184,14 +178,59 @@
             </div>
         </footer>
         <script>
-            // Auto-hide error banner after 1 second (signup)
-            (function(){
+            // Function to show error message
+            function showError(message) {
+                const errorBanner = document.getElementById('error-banner');
+                errorBanner.textContent = message;
+                errorBanner.style.display = 'block';
+                errorBanner.style.opacity = '1';
+                // Auto-hide after 1 second
+                setTimeout(() => {
+                    errorBanner.style.transition = 'opacity 300ms ease';
+                    errorBanner.style.opacity = '0';
+                    setTimeout(() => {
+                        errorBanner.style.display = 'none';
+                    }, 300);
+                }, 1000);
+            }
+
+            // Handle form submission via AJAX
+            document.getElementById('signupForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                const formData = new FormData(this);
+
+                fetch('SignupServlet', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect on success
+                            window.location.href = data.redirect;
+                        } else {
+                            // Show error message
+                            showError(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showError('An unexpected error occurred');
+                    });
+            });
+
+            // Auto-hide error banner after 1 second (for server-side errors)
+            (function () {
                 const b = document.getElementById('error-banner');
-                if (b) {
-                    setTimeout(()=>{
+                if (b && b.textContent.trim() !== '') {
+                    setTimeout(() => {
                         b.style.transition = 'opacity 300ms ease';
                         b.style.opacity = '0';
-                        setTimeout(()=> b.remove(), 400);
+                        setTimeout(() => b.style.display = 'none', 400);
                     }, 1000);
                 }
             })();
