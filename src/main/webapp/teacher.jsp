@@ -85,11 +85,12 @@
                                 class="bg-slate-900/80 backdrop-blur-sm border-b border-blue-500/20 sticky top-0 z-50">
                                 <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                                     <div class="flex items-center space-x-2">
-                                        <div
-                                            class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-bold text-lg">CMS</span>
-                                        </div>
-                                        <h1 class="text-xl font-bold text-blue-300">COURSE-MANAGEMENT-SYSTEM</h1>
+                                        <a href="index.jsp" class="flex items-center space-x-2 no-underline">
+                                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-bold text-lg">CMS</span>
+                                            </div>
+                                            <h1 class="text-xl font-bold text-blue-300">COURSE-MANAGEMENT-SYSTEM</h1>
+                                        </a>
                                     </div>
                                     <div class="flex items-center space-x-4">
 

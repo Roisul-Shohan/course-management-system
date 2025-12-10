@@ -102,69 +102,78 @@
                 </div>
 
                 <!-- Login Form -->
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-blue-500/20">
-                    <h3 class="text-2xl font-semibold mb-6 text-center">Sign In</h3>
+                <% String error=request.getParameter("error"); String msg="" ; if ("invalid_password".equals(error)) {
+                    msg="Password incorrect." ; } else if ("user_not_found".equals(error)) { msg="User not found." ; }
+                    else if (error !=null) { msg="Unknown error." ; } %>
+                    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-blue-500/20">
+                        <h3 class="text-2xl font-semibold mb-6 text-center">Sign In</h3>
 
-                    <form class="space-y-6" method="post" action="signin">
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
-                                Username
-                            </label>
-                            <input type="text" id="username" name="username"
-                                class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
-                                placeholder="Enter your username" required />
-                        </div>
-
-                        <div>
-                            <label for="role" class="block text-sm font-medium text-gray-300 mb-2">
-                                Role
-                            </label>
-                            <select id="role" name="role"
-                                class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white "
-                                required>
-                                <option value="admin">Admin</option>
-                                <option value="teacher">Teacher</option>
-                                <option value="student">Student</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
-                                Password
-                            </label>
-                            <input type="password" id="password" name="password"
-                                class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
-                                placeholder="Enter your password" required />
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <input id="remember-me" type="checkbox"
-                                    class="h-4 w-4 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded" />
-                                <label for="remember-me" class="ml-2 block text-sm text-gray-300">
-                                    Remember me
-                                </label>
+                        <% if (msg !=null && !msg.isEmpty()) { %>
+                            <div class="bg-red-600 text-white p-3 rounded-md mb-4 text-center">
+                                <%= msg %>
                             </div>
-                            <a href="#" class="text-sm text-blue-400 hover:text-blue-300">
-                                Forgot password?
-                            </a>
-                        </div>
+                            <% } %>
 
-                        <button type="submit"
-                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900">
-                            Sign In
-                        </button>
-                    </form>
+                                <form class="space-y-6" method="post" action="signin">
+                                    <div>
+                                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
+                                            Username
+                                        </label>
+                                        <input type="text" id="username" name="username"
+                                            class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                                            placeholder="Enter your username" required />
+                                    </div>
 
-                    <div class="mt-6 text-center">
-                        <p class="text-sm text-gray-400">
-                            Don't have an account?
-                            <a href="signup.jsp" class="text-blue-400 hover:text-blue-300 font-medium ml-1">
-                                Create one
-                            </a>
-                        </p>
+                                    <div>
+                                        <label for="role" class="block text-sm font-medium text-gray-300 mb-2">
+                                            Role
+                                        </label>
+                                        <select id="role" name="role"
+                                            class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white "
+                                            required>
+                                            <option value="admin">Admin</option>
+                                            <option value="teacher">Teacher</option>
+                                            <option value="student">Student</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
+                                            Password
+                                        </label>
+                                        <input type="password" id="password" name="password"
+                                            class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                                            placeholder="Enter your password" required />
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <input id="remember-me" type="checkbox"
+                                                class="h-4 w-4 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 rounded" />
+                                            <label for="remember-me" class="ml-2 block text-sm text-gray-300">
+                                                Remember me
+                                            </label>
+                                        </div>
+                                        <a href="#" class="text-sm text-blue-400 hover:text-blue-300">
+                                            Forgot password?
+                                        </a>
+                                    </div>
+
+                                    <button type="submit"
+                                        class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                                        Sign In
+                                    </button>
+                                </form>
+
+                                <div class="mt-6 text-center">
+                                    <p class="text-sm text-gray-400">
+                                        Don't have an account?
+                                        <a href="signup.jsp" class="text-blue-400 hover:text-blue-300 font-medium ml-1">
+                                            Create one
+                                        </a>
+                                    </p>
+                                </div>
                     </div>
-                </div>
             </div>
         </main>
 
