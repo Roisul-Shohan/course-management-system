@@ -1,12 +1,14 @@
 package com.cms.dao;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import com.cms.config.DBconfig;
 import com.cms.model.Student;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Updates;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 
 public class StudentDAO {
 
@@ -14,6 +16,8 @@ public class StudentDAO {
 
     public StudentDAO() {
         studentCollection = DBconfig.getDatabase().getCollection("students");
+        // Create index on username for faster queries
+        studentCollection.createIndex(Indexes.ascending("username"));
     }
 
     public void save(Student student) {

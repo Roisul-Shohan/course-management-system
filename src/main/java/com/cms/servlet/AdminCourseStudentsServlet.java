@@ -70,7 +70,7 @@ public class AdminCourseStudentsServlet extends HttpServlet {
             }
 
             // Validate JWT token
-            Dotenv dotenv = Dotenv.load();
+            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
                     .build()

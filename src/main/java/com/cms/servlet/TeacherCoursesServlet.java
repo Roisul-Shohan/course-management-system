@@ -63,7 +63,7 @@ public class TeacherCoursesServlet extends HttpServlet {
             }
 
             // Validate JWT token
-            Dotenv dotenv = Dotenv.load();
+            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
                     .build()
@@ -140,7 +140,7 @@ public class TeacherCoursesServlet extends HttpServlet {
     private void validateEnvironment() throws Exception {
         // Check if .env file exists and has required variables
         try {
-            Dotenv dotenv = Dotenv.load();
+            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String jwtSecret = dotenv.get("JWT_SECRET");
             if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
                 throw new Exception("JWT_SECRET not found in environment variables");

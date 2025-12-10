@@ -59,7 +59,7 @@ public class StudentUpdateProfileServlet extends HttpServlet {
             }
 
             // 2. Validate JWT token
-            Dotenv dotenv = Dotenv.load();
+            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
                     .build()

@@ -71,6 +71,7 @@ public class SignupServlet extends HttpServlet {
 
         // Create user and save to DB
         try {
+            long saveStartTime = System.currentTimeMillis();
             if (role.equals("student")) {
                 Student student = new Student();
                 student.setFullname(fullname);
@@ -86,6 +87,8 @@ public class SignupServlet extends HttpServlet {
                 teacher.setPassword(password); // This will hash the password
                 teacherDAO.save(teacher);
             }
+            long saveEndTime = System.currentTimeMillis();
+            System.out.println("SignupServlet: Save operation took " + (saveEndTime - saveStartTime) + " ms");
 
             String token = JWTconfig.generateToken(username, role);
 
@@ -101,6 +104,8 @@ public class SignupServlet extends HttpServlet {
                 response.sendRedirect("teacher.jsp");
             }
         } catch (Exception e) {
+            System.err.println("SignupServlet: Exception during save: " + e.getMessage());
+            e.printStackTrace();
             response.sendRedirect("signup.jsp?error=unknown");
         }
 

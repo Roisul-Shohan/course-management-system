@@ -1,12 +1,13 @@
 package com.cms.dao;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import com.cms.config.DBconfig;
 import com.cms.model.Teacher;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 
 public class TeacherDAO {
 
