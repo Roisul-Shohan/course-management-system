@@ -15,7 +15,10 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
- FROM tomcat:7-jre8
+FROM tomcat:7-jre8
+
+# Remove default ROOT application
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
 # Copy the built WAR file from build stage to Tomcat webapps directory as ROOT.war
 COPY --from=build /app/target/CourseManagementSystem.war /usr/local/tomcat/webapps/ROOT.war
