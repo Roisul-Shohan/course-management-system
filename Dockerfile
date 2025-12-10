@@ -1,5 +1,5 @@
 # Multi-stage build: Build stage
-FROM maven:3.8.4-openjdk-11-slim AS build
+FROM maven:3.8.4-openjdk-8-slim AS build
 
 # Set working directory
 WORKDIR /app
