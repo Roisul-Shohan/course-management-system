@@ -1,25 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ page import="com.auth0.jwt.JWT" %>
-        <%@ page import="com.auth0.jwt.algorithms.Algorithm" %>
-            <%@ page import="com.auth0.jwt.interfaces.DecodedJWT" %>
-                <%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
+<%@ include file="auth-include.jsp" %>
 
-                    <% Cookie[] cookies=request.getCookies(); String token=null; if (cookies !=null) { for (Cookie c :
-                        cookies) { if ("jwt".equals(c.getName())) { token=c.getValue(); break; } } }
-                        System.out.println("Teacher.jsp: Cookies
-                        present: " + (cookies != null ? cookies.length : 0)); System.out.println(" Teacher.jsp: Token
-                        found: " + (token != null)); if (token==null) { System.out.println(" Teacher.jsp: No token,
-                        redirecting to signin.jsp"); response.sendRedirect("signin.jsp"); return; } String username="" ;
-                        String role="" ; try { Dotenv dotenv=Dotenv.load(); String SECRET=dotenv.get("JWT_SECRET");
-                        System.out.println("Teacher.jsp: Verifying token with secret: " + (SECRET != null ? " present"
-                        : "null" )); DecodedJWT decoded=JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
-                        username=decoded.getSubject(); role=decoded.getClaim("role").asString();
-                        System.out.println("Teacher.jsp: JWT valid, username: " + username + " , role: " + role); if (!"
-                        teacher".equals(role)) { System.out.println("Teacher.jsp: Role not teacher, redirecting");
-                        response.sendRedirect("signin.jsp"); return; } com.cms.dao.TeacherDAO teacherDAO=new
-                        com.cms.dao.TeacherDAO(); com.cms.model.Teacher teacher=teacherDAO.findByUsername(username); }
-                        catch (Exception e) { System.out.println("Teacher.jsp: JWT validation
-                        failed: " + e.getMessage()); response.sendRedirect(" signin.jsp"); return; } %>
+<%
+    if (!"teacher".equals(role)) {
+        response.sendRedirect("signin.jsp");
+        return;
+    }
+
+    com.cms.dao.TeacherDAO teacherDAO = new com.cms.dao.TeacherDAO();
+    com.cms.model.Teacher teacher = teacherDAO.findByUsername(username);
+%>
 
                         <!DOCTYPE html>
                         <html lang="en">
@@ -118,6 +108,17 @@
                                     <div class="px-6 mb-8">
                                         <h2 class="text-xl font-bold text-blue-300 mb-6">Teacher Panel</h2>
                                         <nav class="space-y-2">
+                                            <a href="#" class="sidebar-link group block px-4 py-4 rounded-xl text-gray-300 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-purple-500/20 hover:text-white transition-all duration-300 border border-transparent hover:border-blue-500/30" data-section="dashboard">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 bg-slate-700/50 group-hover:bg-blue-500/20 rounded-lg flex items-center justify-center transition-colors duration-300">
+                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                                                        </svg>
+                                                    </div>
+                                                    <span class="font-medium">Dashboard</span>
+                                                </div>
+                                            </a>
                                             <a href="javascript:void(0)"
                                                 class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                 data-section="courses">
@@ -219,14 +220,40 @@
 
                                         <!-- Course Students Content -->
                                         <div id="course-students-content" class="hidden">
-                                            <div class="flex justify-between items-center mb-4">
-                                                <h2 class="text-xl font-bold">Course Students</h2>
+                                            <div class="flex justify-between items-center mb-8">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                                        <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h2 class="text-2xl font-bold text-white">Course Students</h2>
+                                                        <p class="text-sm text-gray-400">Students enrolled in this course</p>
+                                                    </div>
+                                                </div>
                                                 <button id="back-to-courses"
-                                                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors">
+                                                    class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-gray-300 hover:text-white border border-slate-600 flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                                    </svg>
                                                     Back to Courses
                                                 </button>
                                             </div>
-                                            <div id="course-students-list" class="space-y-4">
+
+                                            <!-- Student Count -->
+                                            <div class="mb-6">
+                                                <div class="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-xl p-4 border border-slate-600/30">
+                                                    <div class="flex items-center justify-center gap-2 text-sm text-gray-400">
+                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                        <span id="student-count">0</span> students enrolled
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="course-students-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                                 <!-- Students will be loaded here -->
                                             </div>
                                         </div>
@@ -253,6 +280,11 @@
                                                     <input type="text" name="username"
                                                         class="w-full px-4 py-2 bg-slate-700 rounded-lg text-white"
                                                         required>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium mb-2">Password (leave blank to keep current)</label>
+                                                    <input type="password" name="password"
+                                                        class="w-full px-4 py-2 bg-slate-700 rounded-lg text-white">
                                                 </div>
                                                 <button type="submit"
                                                     class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
@@ -416,34 +448,70 @@
                                         })
                                         .then(data => {
                                             if (data.success) {
-                                                const studentsList = document.getElementById('course-students-list');
-                                                studentsList.innerHTML = '';
+                                                const students = data.students || [];
+                                                renderStudents(students);
 
-                                                if (data.students.length === 0) {
-                                                    studentsList.innerHTML = '<p class="text-gray-400">No students enrolled in this course.</p>';
-                                                } else {
-                                                    data.students.forEach(student => {
-                                                        const studentCard = document.createElement('div');
-                                                        studentCard.className = 'bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-500/20';
-                                                        studentCard.innerHTML = '<div class="flex items-center space-x-4">' +
-                                                            '<div>' +
-                                                            '<h3 class="text-lg font-bold text-blue-300">' + student.fullname + '</h3>' +
-                                                            '<p class="text-gray-400">Username: ' + student.username + '</p>' +
-                                                            '<p class="text-gray-400">Email: ' + student.email + '</p>' +
-                                                            '</div>' +
-                                                            '</div>';
-                                                        studentsList.appendChild(studentCard);
-                                                    });
-                                                }
+                                                // Update student count
+                                                document.getElementById('student-count').textContent = students.length;
                                             } else {
                                                 console.error('Failed to load students:', data.message);
-                                                document.getElementById('course-students-list').innerHTML = '<p class="text-red-400">Failed to load students.</p>';
+                                                document.getElementById('course-students-list').innerHTML = '<div class="col-span-full text-center py-12"><div class="bg-red-500/10 border border-red-500/20 rounded-xl p-6"><p class="text-red-400 font-medium">Failed to load students.</p></div></div>';
+                                                document.getElementById('student-count').textContent = '0';
                                             }
                                         })
                                         .catch(error => {
                                             console.error('Error loading students:', error);
-                                            document.getElementById('course-students-list').innerHTML = '<p class="text-red-400">Error loading students.</p>';
+                                            document.getElementById('course-students-list').innerHTML = '<div class="col-span-full text-center py-12"><div class="bg-red-500/10 border border-red-500/20 rounded-xl p-6"><p class="text-red-400 font-medium">Error loading students.</p></div></div>';
+                                            document.getElementById('student-count').textContent = '0';
                                         });
+                                }
+
+                                // Render students list
+                                function renderStudents(students) {
+                                    const studentsList = document.getElementById('course-students-list');
+                                    studentsList.innerHTML = '';
+
+                                    if (students.length === 0) {
+                                        studentsList.innerHTML = '<div class="col-span-full text-center py-12"><div class="bg-slate-800/30 border border-slate-600/30 rounded-xl p-8"><svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg><h3 class="text-lg font-medium text-gray-400 mb-2">No students enrolled</h3><p class="text-gray-500">This course has no enrolled students yet.</p></div></div>';
+                                        return;
+                                    }
+
+                                    students.forEach(student => {
+                                        const studentCard = document.createElement('div');
+                                        studentCard.className = 'bg-gradient-to-br from-slate-800/60 to-slate-700/60 backdrop-blur-sm rounded-xl p-6 border border-slate-600/30 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 group';
+
+                                        // Safely get student data with fallbacks
+                                        const fullname = student.fullname || 'Unknown Student';
+                                        const username = student.username || 'N/A';
+                                        const email = student.email || 'N/A';
+
+                                        const initials = fullname !== 'Unknown Student' ? fullname.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '??';
+                                        const avatarColor = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500'][Math.floor(Math.random() * 5)];
+
+                                        studentCard.innerHTML = '<div class="flex items-start space-x-4">' +
+                                            '<div class="w-12 h-12 ' + avatarColor + ' rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">' +
+                                                '<span class="text-white font-bold text-sm">' + initials + '</span>' +
+                                            '</div>' +
+                                            '<div class="flex-1 min-w-0">' +
+                                                '<h3 class="text-lg font-bold text-white mb-1 truncate group-hover:text-blue-300 transition-colors">' + fullname + '</h3>' +
+                                                '<div class="space-y-1">' +
+                                                    '<div class="flex items-center text-sm text-gray-400">' +
+                                                        '<svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />' +
+                                                        '</svg>' +
+                                                        '<span class="truncate">' + username + '</span>' +
+                                                    '</div>' +
+                                                    '<div class="flex items-center text-sm text-gray-400">' +
+                                                        '<svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />' +
+                                                        '</svg>' +
+                                                        '<span class="truncate">' + email + '</span>' +
+                                                    '</div>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>';
+                                        studentsList.appendChild(studentCard);
+                                    });
                                 }
 
                                 // Back to courses button
@@ -479,6 +547,7 @@
                                     params.append('fullname', document.querySelector('#edit-profile-form input[name="fullname"]').value);
                                     params.append('username', document.querySelector('#edit-profile-form input[name="username"]').value);
                                     params.append('email', document.querySelector('#edit-profile-form input[name="email"]').value);
+                                    params.append('password', document.querySelector('#edit-profile-form input[name="password"]').value);
 
                                     fetch('/TeacherProfileServlet', {
                                         method: 'POST',
@@ -512,7 +581,7 @@
                                 });
 
 
-                            </script>
-                        </body>
+    </script>
+</body>
 
-                        </html>
+</html>

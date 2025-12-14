@@ -17,8 +17,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.cms.dao.CourseDAO;
 import com.cms.dao.StudentDAO;
+import com.cms.dao.TeacherDAO;
 import com.cms.model.Course;
 import com.cms.model.Student;
+import com.cms.model.Teacher;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -27,11 +29,13 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
 
     private StudentDAO studentDAO;
     private CourseDAO courseDAO;
+    private TeacherDAO teacherDAO;
 
     @Override
     public void init() throws ServletException {
         studentDAO = new StudentDAO();
         courseDAO = new CourseDAO();
+        teacherDAO = new TeacherDAO();
     }
 
     @Override
@@ -43,7 +47,6 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            // Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -61,7 +64,6 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
@@ -71,14 +73,12 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
             String username = decoded.getSubject();
             String role = decoded.getClaim("role").asString();
 
-            // Verify user is a student
             if (!"student".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied\"}");
                 return;
             }
 
-            // Get student by username
             Student student = studentDAO.findByUsername(username);
             if (student == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -86,16 +86,13 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Get enrolled course IDs
             List<String> enrolledCourseIds = new ArrayList<>();
             for (Object courseId : student.getCourses()) {
                 enrolledCourseIds.add(courseId.toString());
             }
 
-            // Get all courses
             List<Course> allCourses = courseDAO.getAll();
 
-            // Filter out enrolled courses
             List<Course> availableCourses = new ArrayList<>();
             for (Course course : allCourses) {
                 if (!enrolledCourseIds.contains(course.get_id().toString())) {
@@ -103,19 +100,26 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
                 }
             }
 
-            // Build JSON response
             StringBuilder json = new StringBuilder();
             json.append("[");
 
             for (int i = 0; i < availableCourses.size(); i++) {
                 Course course = availableCourses.get(i);
+                String teacherName = "Not assigned";
+                if (course.getAssignedTeacher() != null) {
+                    Teacher teacher = teacherDAO.findById(course.getAssignedTeacher());
+                    if (teacher != null) {
+                        teacherName = teacher.getFullname();
+                    }
+                }
                 json.append("{");
                 json.append("\"id\": \"").append(course.get_id().toString()).append("\",");
                 json.append("\"name\": \"").append(escapeJson(course.getName())).append("\",");
                 json.append("\"courseCode\": \"")
                         .append(escapeJson(course.getCourseCode() != null ? course.getCourseCode() : "N/A"))
-                        .append("\"");
-
+                        .append("\",");
+                json.append("\"teacherName\": \"").append(escapeJson(teacherName)).append("\",");
+                json.append("\"studentCount\": ").append(course.getStudents().size());
                 json.append("}");
                 if (i < availableCourses.size() - 1) {
                     json.append(",");

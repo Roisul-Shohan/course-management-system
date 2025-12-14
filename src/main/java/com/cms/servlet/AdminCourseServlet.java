@@ -1,24 +1,26 @@
 package com.cms.servlet;
 
-import com.cms.dao.CourseDAO;
-import com.cms.dao.TeacherDAO;
-import com.cms.model.Teacher;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import com.cms.dao.CourseDAO;
+import com.cms.dao.TeacherDAO;
+import com.cms.model.Teacher;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 
 @WebServlet("/AdminCourseServlet")
 public class AdminCourseServlet extends HttpServlet {
@@ -35,7 +37,6 @@ public class AdminCourseServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            // Get all courses from DAO
             MongoCollection<Document> collection = courseDAO.courseCollection;
             MongoCursor<Document> cursor = collection.find().iterator();
 
@@ -48,9 +49,14 @@ public class AdminCourseServlet extends HttpServlet {
                 course.put("name", doc.getString("name"));
                 course.put("courseCode", doc.getString("courseCode"));
 
-                // Get teacher name if assigned
                 ObjectId assignedTeacherId = doc.getObjectId("assigned_teacher");
-                String teacherName = null; // Use null instead of "Not Assigned"
+                String teacherName = null;
+                if (assignedTeacherId != null) {
+                    Teacher teacher = teacherDAO.findById(assignedTeacherId);
+                    if (teacher != null) {
+                        teacherName = teacher.getFullname();
+                    }
+                }
                 course.put("assignedTeacher", teacherName);
                 List<ObjectId> studentIds = doc.getList("students", ObjectId.class);
 
@@ -61,7 +67,6 @@ public class AdminCourseServlet extends HttpServlet {
 
             cursor.close();
 
-            // Convert to JSON
             String json = objectMapper.writeValueAsString(courses);
             response.getWriter().write(json);
 

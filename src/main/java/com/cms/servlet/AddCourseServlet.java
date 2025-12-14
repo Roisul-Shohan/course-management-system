@@ -1,23 +1,18 @@
 package com.cms.servlet;
 
-import com.cms.dao.CourseDAO;
-import com.cms.model.Course;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
+import com.cms.dao.CourseDAO;
+import com.cms.model.Course;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebServlet("/AddCourseServlet")
-@MultipartConfig
 public class AddCourseServlet extends HttpServlet {
 
     private CourseDAO courseDAO = new CourseDAO();
@@ -31,15 +26,9 @@ public class AddCourseServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            // Get form parameters from multipart data
-            Part courseNamePart = request.getPart("courseName");
-            Part courseCodePart = request.getPart("courseCode");
+            String courseName = request.getParameter("courseName");
+            String courseCode = request.getParameter("courseCode");
 
-            String courseName = getValue(courseNamePart);
-            String courseCode = getValue(courseCodePart);
-
-
-            // Validate input
             if (courseName == null || courseName.trim().isEmpty() ||
                     courseCode == null || courseCode.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -47,13 +36,16 @@ public class AddCourseServlet extends HttpServlet {
                 return;
             }
 
-            // Create new course
-            Course course = new Course(courseName.trim(), courseCode.trim());
+            // Check if course code already exists
+            if (courseDAO.findByCourseCode(courseCode.trim()) != null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"error\": \"Course code already exists\"}");
+                return;
+            }
 
-            // Save to database
+            Course course = new Course(courseName.trim(), courseCode.trim());
             courseDAO.save(course);
 
-            // Return success response
             response.getWriter().write("{\"success\": true, \"message\": \"Course added successfully\"}");
 
         } catch (Exception e) {
@@ -62,13 +54,4 @@ public class AddCourseServlet extends HttpServlet {
         }
     }
 
-    private String getValue(Part part) throws IOException {
-        if (part == null) {
-            return null;
-        }
-        try (InputStream inputStream = part.getInputStream();
-                Scanner scanner = new Scanner(inputStream, "UTF-8")) {
-            return scanner.useDelimiter("\\A").next();
-        }
-    }
 }

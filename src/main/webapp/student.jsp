@@ -1,52 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="com.auth0.jwt.JWT" %>
-<%@ page import="com.auth0.jwt.algorithms.Algorithm" %>
-<%@ page import="com.auth0.jwt.interfaces.DecodedJWT" %>
-<%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
 <%@ page import="com.cms.model.Student" %>
-
+<%@ include file="auth-include.jsp" %>
 
 <%
-Cookie[] cookies = request.getCookies();
-String token = null;
-
-if (cookies != null) {
-    for (Cookie c : cookies) {
-        if ("jwt".equals(c.getName())) {
-            token = c.getValue();
-            break;
-        }
-    }
-}
-
-if (token == null) {
-    response.sendRedirect("signin.jsp");
-    return;
-}
-
-String username = "";
-String role = "";
-
-try {
-    Dotenv dotenv = Dotenv.load();
-    String SECRET = dotenv.get("JWT_SECRET");
-
-    DecodedJWT decoded = JWT.require(Algorithm.HMAC256(SECRET))
-                            .build()
-                            .verify(token);
-
-    username = decoded.getSubject();
-    role = decoded.getClaim("role").asString();
-
     if (!"student".equals(role)) {
         response.sendRedirect("signin.jsp");
         return;
     }
-
-} catch (Exception e) {
-    response.sendRedirect("signin.jsp");
-    return;
-}
 %>
 
 <%
@@ -115,11 +75,9 @@ Student studentObj = (Student) session.getAttribute("student");
                                 </head>
 
                                 <body class="min-h-screen bg-slate-900 text-white relative">
-                                    <!-- Grid Pattern Background -->
-                                    <div class="grid-pattern"></div>
-
-                                    <!-- Header -->
-                                    <header
+                                                                <div class="grid-pattern"></div>
+                            
+                                                                <header
                                         class="bg-slate-900/80 backdrop-blur-sm border-b border-blue-500/20 sticky top-0 z-50">
                                         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                                             <div class="flex items-center space-x-2">
@@ -151,6 +109,7 @@ Student studentObj = (Student) session.getAttribute("student");
                                             <div class="px-6 mb-8">
                                                 <h2 class="text-xl font-bold text-blue-300 mb-6">Student Panel</h2>
                                                 <nav class="space-y-2">
+                                                    <a href="#" class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors" data-section="dashboard"> <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" /> </svg> Dashboard </a>
                                                     <a href="#"
                                                         class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                         data-section="my-courses">
@@ -163,6 +122,18 @@ Student studentObj = (Student) session.getAttribute("student");
                                                         </svg>
                                                         My Courses
                                                     </a>
+                                                     <a href="#"
+                                                        class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                                                        data-section="available-courses">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                                        </svg>
+                                                        Available Courses
+                                                    </a>
                                                     <a href="#" id="register-course-link"
                                                         class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                         data-section="register-course">
@@ -174,6 +145,7 @@ Student studentObj = (Student) session.getAttribute("student");
                                                         </svg>
                                                         Register New Course
                                                     </a>
+                                                   
                                                     <a href="#" id="edit-profile-link"
                                                         class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                         data-section="edit-profile">
@@ -231,29 +203,6 @@ Student studentObj = (Student) session.getAttribute("student");
                                                             </div>
                                                         </div>
 
-                                                        <div
-                                                            class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-500/20">
-                                                            <div class="flex items-center">
-                                                                <div
-                                                                    class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="h-6 w-6 text-white" fill="none"
-                                                                        viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                    </svg>
-                                                                </div>
-                                                                <div class="ml-4">
-                                                                    <h3 class="text-sm font-medium text-gray-400">
-                                                                        Completed
-                                                                        Courses</h3>
-                                                                    <p class="text-2xl font-bold"
-                                                                        id="completed-courses">
-                                                                        Loading...</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
 
 
                                                         <!-- Recent Activity -->
@@ -270,11 +219,18 @@ Student studentObj = (Student) session.getAttribute("student");
 
                                                 <!-- My Courses Content -->
                                                 <div id="my-courses-content" class="hidden">
-                                                    <h2 class="text-xl font-bold mb-4">My Courses</h2>
-                                                    <p class="text-gray-400">Your enrolled courses will be displayed
-                                                        here.
-                                                    </p>
-                                                    <div id="my-courses-list" class="space-y-4">
+                                                    <div class="mb-8">
+                                                        <div class="flex items-center gap-3 mb-2">
+                                                            <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                                                                <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                                </svg>
+                                                            </div>
+                                                            <h2 class="text-2xl font-bold text-white">My Courses</h2>
+                                                        </div>
+                                                        <p class="text-gray-400">Your enrolled courses and learning progress</p>
+                                                    </div>
+                                                    <div id="my-courses-list" class="grid gap-6">
                                                         <!-- Courses will be loaded here -->
                                                     </div>
                                                 </div>
@@ -329,6 +285,24 @@ Student studentObj = (Student) session.getAttribute("student");
                                                         </button>
                                                     </form>
                                                 </div>
+
+                                                <!-- Available Courses Content -->
+                                                <div id="available-courses-content" class="hidden">
+                                                    <div class="mb-8">
+                                                        <div class="flex items-center gap-3 mb-2">
+                                                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                                                <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                                                </svg>
+                                                            </div>
+                                                            <h2 class="text-2xl font-bold text-white">Available Courses</h2>
+                                                        </div>
+                                                        <p class="text-gray-400">Courses you can enroll in</p>
+                                                    </div>
+                                                    <div id="available-courses-list" class="grid gap-6">
+                                                        <!-- Courses will be loaded here -->
+                                                    </div>
+                                                </div>
                                             </div>
                                         </main>
                                     </div>
@@ -336,7 +310,7 @@ Student studentObj = (Student) session.getAttribute("student");
 
 
 
-                                    <script src="assets/js/student-sidebar.js?v=2"></script>
+                                    <script src="assets/js/student-sidebar.js?v=3"></script>
 
 
 

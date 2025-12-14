@@ -1,7 +1,5 @@
 
-// Console log to verify script loading
 
-// Function to load stats
 function loadStats() {
     fetch('/AdminStatsServlet')
         .then(response => {
@@ -11,25 +9,25 @@ function loadStats() {
             return response.json();
         })
         .then(data => {
-            // Check if DOM elements exist before updating
-            const totalStudentsEl = document.getElementById('total-students');
-            const totalTeachersEl = document.getElementById('total-teachers');
-            const totalCoursesEl = document.getElementById('total-courses');
 
-            if (totalStudentsEl) {
-                totalStudentsEl.textContent = data.totalStudents;
+            const totalStudents = document.getElementById('total-students');
+            const totalTeachers = document.getElementById('total-teachers');
+            const totalCourses = document.getElementById('total-courses');
+
+            if (totalStudents) {
+                totalStudents.textContent = data.totalStudents;
             } else {
                 console.error('loadStats: total-students element not found');
             }
 
-            if (totalTeachersEl) {
-                totalTeachersEl.textContent = data.totalTeachers;
+            if (totalTeachers) {
+                totalTeachers.textContent = data.totalTeachers;
             } else {
                 console.error('loadStats: total-teachers element not found');
             }
 
-            if (totalCoursesEl) {
-                totalCoursesEl.textContent = data.totalCourses;
+            if (totalCourses) {
+                totalCourses.textContent = data.totalCourses;
             } else {
                 console.error('loadStats: total-courses element not found');
             }
@@ -39,7 +37,6 @@ function loadStats() {
             console.error('loadStats: Error occurred during stats loading:', error);
             console.error('loadStats: Error details:', error.message);
             
-            // Check if DOM elements exist before setting error text
             const totalStudentsEl = document.getElementById('total-students');
             const totalTeachersEl = document.getElementById('total-teachers');
             const totalCoursesEl = document.getElementById('total-courses');
@@ -56,51 +53,65 @@ function loadStats() {
         });
 }
 
-// Function to initialize admin sidebar
+function showSection(sectionId) {
+    
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.remove('hidden');
+    } else {
+        document.getElementById('default-content').classList.remove('hidden');
+    }
+}
+
 function initAdminSidebar() {
-    // Load stats on page load
     loadStats();
 
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    const contentSections = document.querySelectorAll('#main-content > div');
-
-    sidebarLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('sidebar-link') || e.target.closest('.sidebar-link')) {
+            const link = e.target.classList.contains('sidebar-link') ? e.target : e.target.closest('.sidebar-link');
             e.preventDefault();
 
-            // Remove active class from all links
-            sidebarLinks.forEach(l => l.classList.remove('bg-blue-600', 'text-white'));
-            sidebarLinks.forEach(l => l.classList.add('text-gray-300'));
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.classList.remove('bg-blue-600', 'text-white');
+                l.classList.add('text-gray-300');
+            });
 
-            // Add active class to clicked link
-            this.classList.add('bg-blue-600', 'text-white');
-            this.classList.remove('text-gray-300');
+            link.classList.add('bg-blue-600', 'text-white');
+            link.classList.remove('text-gray-300');
 
-            // Hide all content sections
-            contentSections.forEach(section => section.classList.add('hidden'));
+            document.querySelectorAll('#main-content > div').forEach(div => div.classList.add('hidden'));
 
-            // Show corresponding content
-            const sectionId = this.getAttribute('data-section') + '-content';
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-
-                // Load content for specific sections
-                if (this.getAttribute('data-section') === 'students') {
+            const section = link.getAttribute('data-section');
+            switch (section) {
+                case 'students':
                     loadStudents();
-                } else if (this.getAttribute('data-section') === 'teachers') {
+                    showSection(section + '-content');
+                    break;
+                case 'teachers':
                     loadTeachers();
-                } else if (this.getAttribute('data-section') === 'courses') {
+                    showSection(section + '-content');
+                    break;
+                case 'courses':
                     loadCourses();
-                } else if (this.getAttribute('data-section') === 'assign-teacher') {
+                    showSection(section + '-content');
+                    break;
+                case 'assign-teacher':
                     loadCoursesForSelect();
                     loadTeachersForSelect();
-                }
-            } else {
-                // Fallback to default if section not found
-                document.getElementById('default-content').classList.remove('hidden');
+                    showSection(section + '-content');
+                    break;
+                case 'add-course':
+                    console.log('Add course case called');
+                    showSection(section + '-content');
+                    break;
+                case 'dashboard':
+                    showSection('default-content');
+                    break;
+                default:
+                    showSection('default-content');
+                    break;
             }
-        });
+        }
     });
 
     // Modal functionality
@@ -123,7 +134,6 @@ function initAdminSidebar() {
 }
 
 
-// Function to load students
 function loadStudents() {
     fetch('AdminStudentServlet')
         .then(response => {
@@ -154,7 +164,6 @@ function loadStudents() {
                 studentsList.appendChild(studentDiv);
             });
 
-            // Add event listeners to view details buttons
             document.querySelectorAll('.view-details-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const student = JSON.parse(this.getAttribute('data-student'));
@@ -169,7 +178,6 @@ function loadStudents() {
         });
 }
 
-// Function to show student modal
 function showStudentModal(student) {
     const modalFullname = document.getElementById('modal-fullname');
     const modalEmail = document.getElementById('modal-email');
@@ -201,7 +209,6 @@ function showStudentModal(student) {
     }
 }
 
-// Teacher modal functionality
 const teacherModal = document.getElementById('teacher-modal');
 const closeTeacherModalBtn = document.getElementById('close-teacher-modal');
 
@@ -219,7 +226,6 @@ if (teacherModal) {
     });
 }
 
-// Function to load teachers
 function loadTeachers() {
     fetch('AdminTeacherServlet')
         .then(response => response.json())
@@ -245,7 +251,6 @@ function loadTeachers() {
                 teachersList.appendChild(teacherDiv);
             });
 
-            // Add event listeners to view details buttons
             document.querySelectorAll('.view-teacher-details-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const teacher = JSON.parse(this.getAttribute('data-teacher'));
@@ -260,7 +265,7 @@ function loadTeachers() {
         });
 }
 
-// Function to show teacher modal
+
 function showTeacherModal(teacher) {
     document.getElementById('teacher-modal-fullname').textContent = teacher.fullname;
     document.getElementById('teacher-modal-email').textContent = teacher.email;
@@ -270,7 +275,6 @@ function showTeacherModal(teacher) {
     document.getElementById('teacher-modal').classList.remove('hidden');
 }
 
-// Course modal functionality
 const courseModal = document.getElementById('course-modal');
 const closeCourseModalBtn = document.getElementById('close-course-modal');
 
@@ -288,7 +292,7 @@ if (courseModal) {
     });
 }
 
-// Function to load courses
+
 function loadCourses() {
     fetch('AdminCourseServlet')
         .then(response => response.json())
@@ -305,14 +309,31 @@ function loadCourses() {
                 const courseDiv = document.createElement('div');
                 courseDiv.className = 'flex justify-between items-center p-4 bg-slate-700/50 rounded-lg';
                 courseDiv.innerHTML = `
-                    <div>
-                        <span class="font-medium">${course.name}</span>
-                        <span class="text-sm text-gray-400 ml-2">(${course.courseCode})</span>
-                        <div class="text-sm text-gray-400">
-                            ${course.assignedTeacher ? 'Teacher Assigned' : '<a href="#" class="assign-teacher-link text-blue-400 hover:text-blue-300" data-course-id="' + course.id + '">Assign Teacher</a>'}
-                            • <a href="#" class="view-students-link text-green-400 hover:text-green-300" data-course-id="${course.id}">View Students (${course.students || 0})</a>
-                        </div>
+                   <div>
+                    <span class="font-medium">${course.name}</span>
+                    <span class="text-sm text-gray-400 ml-2">(${course.courseCode})</span>
+
+                    <div class="text-sm text-gray-400">
+                        ${
+                        course.assignedTeacher
+                            ? `Assigned Teacher:
+                            <span class="text-pink-400 font-semibold">
+                                ${course.assignedTeacher}
+                            </span>`
+                            : `<a href="#"
+                                class="assign-teacher-link text-blue-400 hover:text-blue-300"
+                                data-course-id="${course.id}">
+                                Assign Teacher
+                            </a>`
+                        }
+                        • <a href="#"
+                            class="view-students-link text-green-400 hover:text-green-300"
+                            data-course-id="${course.id}">
+                            View Students (${course.students || 0})
+                        </a>
                     </div>
+                    </div>
+
                     <button class="view-course-details-btn px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
                             data-course='${JSON.stringify(course)}'>
                         View Details
@@ -321,17 +342,14 @@ function loadCourses() {
                 coursesList.appendChild(courseDiv);
             });
 
-            // Add event listeners to assign teacher links
             document.querySelectorAll('.assign-teacher-link').forEach(link => {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
                     const courseId = this.getAttribute('data-course-id');
-                    // Switch to assign teacher section
                     document.querySelector('[data-section="assign-teacher"]').click();
                 });
             });
 
-            // Add event listeners to view students links
             document.querySelectorAll('.view-students-link').forEach(link => {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -340,7 +358,6 @@ function loadCourses() {
                 });
             });
 
-            // Add event listeners to view details buttons
             document.querySelectorAll('.view-course-details-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const course = JSON.parse(this.getAttribute('data-course'));
@@ -355,7 +372,7 @@ function loadCourses() {
         });
 }
 
-// Function to load courses for select
+
 function loadCoursesForSelect() {
     fetch('AdminCourseServlet')
         .then(response => response.json())
@@ -374,7 +391,6 @@ function loadCoursesForSelect() {
         });
 }
 
-// Function to load teachers for select
 function loadTeachersForSelect() {
     fetch('AdminTeacherServlet')
         .then(response => response.json())
@@ -393,7 +409,6 @@ function loadTeachersForSelect() {
         });
 }
 
-// Function to show course modal
 function showCourseModal(course) {
     document.getElementById('course-modal-name').textContent = course.name;
     document.getElementById('course-modal-code').textContent = course.courseCode;
@@ -403,7 +418,6 @@ function showCourseModal(course) {
     document.getElementById('course-modal').classList.remove('hidden');
 }
 
-// Function to load course students
 function loadCourseStudents(courseId) {
     fetch('AdminCourseStudentsServlet?courseId=' + courseId)
         .then(response => response.json())
@@ -415,15 +429,6 @@ function loadCourseStudents(courseId) {
                 if (data.students.length === 0) {
                     courseStudentsList.innerHTML = '<p class="text-gray-400">No students enrolled in this course.</p>';
                 } else {
-                    // Add teacher info at the top
-                    const teacherDiv = document.createElement('div');
-                    teacherDiv.className = 'p-4 bg-blue-600/20 rounded-lg mb-4';
-                    teacherDiv.innerHTML = `
-                        <div class="text-sm text-blue-300">
-                            <strong>Teacher:</strong> ${data.teacher || 'Not Assigned'}
-                        </div>
-                    `;
-                    courseStudentsList.appendChild(teacherDiv);
 
                     data.students.forEach(student => {
                         const studentDiv = document.createElement('div');
@@ -439,7 +444,6 @@ function loadCourseStudents(courseId) {
                     });
                 }
 
-                // Show the course students content
                 document.querySelectorAll('#main-content > div').forEach(section => section.classList.add('hidden'));
                 document.getElementById('course-students-content').classList.remove('hidden');
             } else {
@@ -452,7 +456,6 @@ function loadCourseStudents(courseId) {
         });
 }
 
-// Add Course Form Handling
 function initAddCourseForm() {
     const addCourseForm = document.getElementById('add-course-form');
     if (addCourseForm) {
@@ -463,28 +466,30 @@ function initAddCourseForm() {
             const courseName = formData.get('courseName');
             const courseCode = formData.get('courseCode');
 
-            // Basic validation
             if (!courseName || !courseCode) {
                 alert('Please fill in all fields');
                 return;
             }
 
-            // Submit form via AJAX
+            const params = new URLSearchParams();
+            params.append('courseName', courseName);
+            params.append('courseCode', courseCode);
+
             fetch('AddCourseServlet', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString()
             })
-                .then(response => {
-                    return response.text().then(text => {
-                        return JSON.parse(text);
-                    });
+                .then(async response => {
+                    const text = await response.text();
+                    return JSON.parse(text);
                 })
                 .then(data => {
                     if (data.success) {
                         alert('Course added successfully!');
-                        // Reset form
                         addCourseForm.reset();
-                        // Refresh courses list if we're on the courses page
                         if (document.getElementById('courses-content').classList.contains('hidden') === false) {
                             loadCourses();
                         }
@@ -501,7 +506,6 @@ function initAddCourseForm() {
 }
 
 
-// Assign Teacher Form Handling
 function initAssignTeacherForm() {
     const assignTeacherForm = document.getElementById('assign-teacher-form');
     if (assignTeacherForm) {
@@ -516,21 +520,23 @@ function initAssignTeacherForm() {
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('courseId', courseId);
-            formData.append('teacherId', teacherId);
+            const params = new URLSearchParams();
+            params.append('courseId', courseId);
+            params.append('teacherId', teacherId);
 
             fetch('AssignTeacherServlet', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString()
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert('Teacher assigned successfully!');
-                        // Reset form
                         assignTeacherForm.reset();
-                        // Refresh courses list if we're on the courses page
+
                         if (document.getElementById('courses-content').classList.contains('hidden') === false) {
                             loadCourses();
                         }
@@ -550,7 +556,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initAdminSidebar();
     initAddCourseForm();
     initAssignTeacherForm();
-    // Load courses and teachers for assign teacher form
     loadCoursesForSelect();
     loadTeachersForSelect();
 });

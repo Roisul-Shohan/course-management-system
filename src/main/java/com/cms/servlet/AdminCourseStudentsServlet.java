@@ -53,7 +53,6 @@ public class AdminCourseStudentsServlet extends HttpServlet {
         try {
             ObjectId courseId = new ObjectId(courseIdParam);
 
-            // Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -71,7 +70,6 @@ public class AdminCourseStudentsServlet extends HttpServlet {
                 return;
             }
 
-            // Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
@@ -81,14 +79,12 @@ public class AdminCourseStudentsServlet extends HttpServlet {
             String username = decoded.getSubject();
             String role = decoded.getClaim("role").asString();
 
-            // Verify user is an admin
             if (!"admin".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied\"}");
                 return;
             }
 
-            // Get course
             Course course = courseDAO.findById(courseId);
             if (course == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -96,7 +92,6 @@ public class AdminCourseStudentsServlet extends HttpServlet {
                 return;
             }
 
-            // Get students for this course
             List<ObjectId> studentIds = course.getStudents();
             List<Map<String, Object>> students = new ArrayList<>();
 
@@ -112,7 +107,6 @@ public class AdminCourseStudentsServlet extends HttpServlet {
                 }
             }
 
-            // Get teacher name for the course
             String teacherName = "Not Assigned";
             if (course.getAssignedTeacher() != null) {
                 com.cms.model.Teacher teacher = teacherDAO.findById(course.getAssignedTeacher());
@@ -121,7 +115,6 @@ public class AdminCourseStudentsServlet extends HttpServlet {
                 }
             }
 
-            // Build JSON response
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("success", true);
             responseData.put("students", students);

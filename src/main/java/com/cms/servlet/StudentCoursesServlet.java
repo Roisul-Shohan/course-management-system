@@ -50,7 +50,6 @@ public class StudentCoursesServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            // Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -68,7 +67,6 @@ public class StudentCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
@@ -78,14 +76,12 @@ public class StudentCoursesServlet extends HttpServlet {
             String username = decoded.getSubject();
             String role = decoded.getClaim("role").asString();
 
-            // Verify user is a student
             if (!"student".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied\"}");
                 return;
             }
 
-            // Get student by username
             Student student = studentDAO.findByUsername(username);
             if (student == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -93,7 +89,6 @@ public class StudentCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Get courses for this student
             List<ObjectId> courseIds = student.getCourses();
             List<Course> courses = new ArrayList<>();
 
@@ -104,7 +99,6 @@ public class StudentCoursesServlet extends HttpServlet {
                 }
             }
 
-            // Build JSON response
             StringBuilder json = new StringBuilder();
             json.append("{\"success\": true, \"courses\": [");
 
@@ -117,7 +111,6 @@ public class StudentCoursesServlet extends HttpServlet {
                         .append(escapeJson(course.getCourseCode() != null ? course.getCourseCode() : "N/A"))
                         .append("\",");
 
-                // Get teacher name
                 String teacherName = "Not assigned";
                 if (course.getAssignedTeacher() != null) {
                     MongoDatabase database = DBconfig.getDatabase();

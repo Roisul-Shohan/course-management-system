@@ -1,17 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ page import="com.auth0.jwt.JWT" %>
-        <%@ page import="com.auth0.jwt.algorithms.Algorithm" %>
-            <%@ page import="com.auth0.jwt.interfaces.DecodedJWT" %>
-                <%@ page import="io.github.cdimascio.dotenv.Dotenv" %>
+<%@ include file="auth-include.jsp" %>
 
-                    <% Cookie[] cookies=request.getCookies(); String token=null; if (cookies !=null) { for (Cookie c :
-                        cookies) { if ("jwt".equals(c.getName())) { token=c.getValue(); break; } } } if (token==null) {
-                        response.sendRedirect("signin.jsp"); return; } String username="" ; String role="" ; try {
-                        Dotenv dotenv=Dotenv.load(); String SECRET=dotenv.get("JWT_SECRET"); // Load secret from .env
-                        DecodedJWT decoded=JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
-                        username=decoded.getSubject(); role=decoded.getClaim("role").asString(); if
-                        (!"admin".equals(role)) { response.sendRedirect("signin.jsp"); return; } } catch (Exception e) {
-                        response.sendRedirect("signin.jsp"); return; } %>
+<%
+    if (!"admin".equals(role)) {
+        response.sendRedirect("signin.jsp");
+        return;
+    }
+%>
 
 
                         <!DOCTYPE html>
@@ -108,6 +103,13 @@
                                     <div class="px-6 mb-8">
                                         <h2 class="text-xl font-bold text-blue-300 mb-6">Admin Panel</h2>
                                         <nav class="space-y-2">
+                                             <a href="#" class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors" data-section="dashboard">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                                                 </svg>
+                                                 Dashboard
+                                             </a>
                                             <a href="#"
                                                 class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                 data-section="students">
@@ -174,7 +176,7 @@
                                 <!-- Main Content -->
                                 <main class="ml-64 flex-1 p-6">
                                     <div id="main-content">
-                                        <!-- Default Content (Stats and Recent Activity) -->
+                                      
                                         <div id="default-content">
                                             <!-- Welcome Section -->
                                             <div class="mb-8">
@@ -257,18 +259,13 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Recent Activity -->
-                                            <div>
-                                                <div id="recent-activity-list" class="space-y-4">
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <!-- Students Content -->
                                         <div id="students-content" class="hidden">
                                             <h2 class="text-xl font-bold mb-4">All Students</h2>
                                             <div id="students-list" class="space-y-2">
-                                                <!-- Student list will be populated here -->
+                                               
                                             </div>
                                         </div>
 
@@ -276,7 +273,7 @@
                                         <div id="teachers-content" class="hidden">
                                             <h2 class="text-xl font-bold mb-4">All Teachers</h2>
                                             <div id="teachers-list" class="space-y-2">
-                                                <!-- Teacher list will be populated here -->
+                                              
                                             </div>
                                         </div>
 
@@ -284,7 +281,7 @@
                                         <div id="courses-content" class="hidden">
                                             <h2 class="text-xl font-bold mb-4">All Courses</h2>
                                             <div id="courses-list" class="space-y-2">
-                                                <!-- Course list will be populated here -->
+                                               
                                             </div>
                                         </div>
 
@@ -298,7 +295,7 @@
                                                 <input type="text" name="courseCode" placeholder="Course Code"
                                                     class="w-full px-4 py-2 bg-slate-700 rounded-lg text-white"
                                                     required>
-                                                <!-- Add more fields as needed -->
+                                              
                                                 <button type="submit"
                                                     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Add
                                                     Course</button>
@@ -308,19 +305,18 @@
                                         <!-- Assign Teacher Content -->
                                         <div id="assign-teacher-content" class="hidden">
                                             <h2 class="text-xl font-bold mb-4">Assign Teacher to Course</h2>
-                                            <form id="assign-teacher-form" enctype="multipart/form-data"
-                                                class="space-y-4">
+                                            <form id="assign-teacher-form" class="space-y-4">
                                                 <select name="courseId" id="assign-course-select"
                                                     class="w-full px-4 py-2 bg-slate-700 rounded-lg text-white"
                                                     required>
                                                     <option value="">Select Course</option>
-                                                    <!-- Populate with courses -->
+                                                   
                                                 </select>
                                                 <select name="teacherId" id="assign-teacher-select"
                                                     class="w-full px-4 py-2 bg-slate-700 rounded-lg text-white"
                                                     required>
                                                     <option value="">Select Teacher</option>
-                                                    <!-- Populate with teachers -->
+                                                  
                                                 </select>
                                                 <button type="submit"
                                                     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Assign
@@ -332,7 +328,7 @@
                                         <div id="course-students-content" class="hidden">
                                             <h2 class="text-xl font-bold mb-4">Course Students</h2>
                                             <div id="course-students-list" class="space-y-2">
-                                                <!-- Course students list will be populated here -->
+                                              
                                             </div>
                                         </div>
                                     </div>
@@ -438,8 +434,7 @@
                                 </div>
                             </div>
 
-                            <script src="assets/js/admin-sidebar.js">
-                            </script>
+                            <script src="assets/js/admin-sidebar.js?v=2"></script>
 
                         </body>
 

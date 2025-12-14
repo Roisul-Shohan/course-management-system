@@ -49,15 +49,6 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         String courseIdParam = request.getParameter("courseId");
-        System.out.println("TeacherCourseStudentsServlet called");
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Request URL: " + request.getRequestURL());
-        System.out.println("Query String: " + request.getQueryString());
-        System.out.println("Received courseIdParam: '" + courseIdParam + "'");
-        System.out.println("All parameters:");
-        request.getParameterMap().forEach((key, values) -> {
-            System.out.println("Parameter: " + key + " = " + java.util.Arrays.toString(values));
-        });
 
         if (courseIdParam == null || courseIdParam.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -68,7 +59,6 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
         try {
             ObjectId courseId = new ObjectId(courseIdParam);
 
-            // Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -86,7 +76,6 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
                 return;
             }
 
-            // Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
@@ -96,14 +85,12 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
             String username = decoded.getSubject();
             String role = decoded.getClaim("role").asString();
 
-            // Verify user is a teacher
             if (!"teacher".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied\"}");
                 return;
             }
 
-            // Get teacher by username
             Teacher teacher = teacherDAO.findByUsername(username);
             if (teacher == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -111,14 +98,12 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
                 return;
             }
 
-            // Check if the course belongs to this teacher
             if (!teacher.getCourses().contains(courseId)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied to this course\"}");
                 return;
             }
 
-            // Get course
             Course course = courseDAO.findById(courseId);
             if (course == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -126,7 +111,6 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
                 return;
             }
 
-            // Get students for this course
             List<ObjectId> studentIds = course.getStudents();
             System.out.println("Course: " + course.getName() + ", Student IDs: " + studentIds);
             List<Student> students = new ArrayList<>();
@@ -142,7 +126,6 @@ public class TeacherCourseStudentsServlet extends HttpServlet {
             }
             System.out.println("Total students found: " + students.size());
 
-            // Build JSON response
             StringBuilder json = new StringBuilder();
             json.append("{\"success\": true, \"students\": [");
 

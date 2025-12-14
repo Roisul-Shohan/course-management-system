@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.cms.config.JWTconfig;
 import com.cms.dao.TeacherDAO;
 import com.cms.model.Teacher;
 
@@ -89,7 +90,6 @@ public class TeacherProfileServlet extends HttpServlet {
         if (teacher == null)
             return;
 
-        // Return JSON profile (without profileImage)
         String json = String.format(
                 "{\"success\": true, \"profile\": {\"fullname\": \"%s\", \"username\": \"%s\", \"email\": \"%s\"}}",
                 escapeJson(teacher.getFullname()),
@@ -111,14 +111,11 @@ public class TeacherProfileServlet extends HttpServlet {
             return;
 
         try {
-            // Get form parameters
             String fullname = request.getParameter("fullname");
             String email = request.getParameter("email");
             String newUsername = request.getParameter("username");
+            String password = request.getParameter("password"); 
 
-           
-
-            // Check username conflict
             if (!teacher.getUsername().equals(newUsername)) {
                 if (teacherDAO.findByUsername(newUsername) != null) {
                     response.getWriter().print("{\"success\": false, \"message\": \"Username already taken\"}");
@@ -126,16 +123,24 @@ public class TeacherProfileServlet extends HttpServlet {
                 }
             }
 
-            // Debug logging for teacher object before update
-
-            // Update teacher object
             teacher.setFullname(fullname);
             teacher.setEmail(email);
             teacher.setUsername(newUsername);
+            if (password != null && !password.trim().isEmpty()) {
+                teacher.setPassword(password);
+            }
 
-          
-            // Update in database
             teacherDAO.updateTeacher(teacher);
+
+            // Generate new JWT if username changed
+            if (!teacher.getUsername().equals(newUsername)) {
+                String newToken = JWTconfig.generateToken(newUsername, "teacher");
+                Cookie jwtCookie = new Cookie("jwt", newToken);
+                jwtCookie.setHttpOnly(true);
+                jwtCookie.setMaxAge(24 * 60 * 60);
+                jwtCookie.setPath("/");
+                response.addCookie(jwtCookie);
+            }
 
             response.getWriter().print("{\"success\": true, \"message\": \"Profile updated successfully\"}");
 

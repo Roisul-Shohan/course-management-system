@@ -1,11 +1,6 @@
 package com.cms.servlet;
 
-import com.cms.config.JWTconfig;
-import com.cms.dao.CourseDAO;
-import com.cms.dao.StudentDAO;
-import com.cms.model.Course;
-import com.cms.model.Student;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,9 +8,15 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import org.bson.types.ObjectId;
+
+import com.cms.config.JWTconfig;
+import com.cms.dao.CourseDAO;
+import com.cms.dao.StudentDAO;
+import com.cms.model.Course;
+import com.cms.model.Student;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebServlet("/StudentRegisterCourseServlet")
 public class StudentRegisterCourseServlet extends HttpServlet {
@@ -32,7 +33,6 @@ public class StudentRegisterCourseServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            // Authenticate user via JWT
             Cookie[] cookies = request.getCookies();
             String token = null;
             if (cookies != null) {
@@ -64,7 +64,6 @@ public class StudentRegisterCourseServlet extends HttpServlet {
                 return;
             }
 
-            // Validate course ID from request
             String courseIdStr = request.getParameter("courseId");
             if (courseIdStr == null || courseIdStr.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -88,20 +87,15 @@ public class StudentRegisterCourseServlet extends HttpServlet {
                 return;
             }
 
-            // Check if student is not already registered
             if (student.getCourses().contains(courseId)) {
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
                 response.getWriter().write("{\"error\": \"Already registered for this course\"}");
                 return;
             }
 
-            // Add course ID to student's courses list
             studentDAO.addCourseToStudent(student.get_id(), courseId);
-
-            // Add student ID to course's students list
             courseDAO.addStudentToCourse(course.get_id(), student.get_id());
 
-            // Return success message
             response.getWriter().write("{\"success\": true, \"message\": \"Successfully registered for the course\"}");
 
         } catch (Exception e) {

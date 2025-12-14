@@ -3,7 +3,6 @@ package com.cms.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,9 +12,9 @@ import org.bson.types.ObjectId;
 
 import com.cms.dao.CourseDAO;
 import com.cms.dao.TeacherDAO;
+import com.cms.model.Course;
 
 @WebServlet("/AssignTeacherServlet")
-@MultipartConfig
 public class AssignTeacherServlet extends HttpServlet {
 
     private CourseDAO courseDAO = new CourseDAO();
@@ -29,11 +28,9 @@ public class AssignTeacherServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            // Get form parameters from multipart data
             String courseIdStr = request.getParameter("courseId");
             String teacherIdStr = request.getParameter("teacherId");
 
-            // Validate input
             if (courseIdStr == null || teacherIdStr == null || courseIdStr.trim().isEmpty()
                     || teacherIdStr.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -42,18 +39,23 @@ public class AssignTeacherServlet extends HttpServlet {
                 return;
             }
 
-            // Convert strings to ObjectId
             ObjectId courseId = new ObjectId(courseIdStr.trim());
             ObjectId teacherId = new ObjectId(teacherIdStr.trim());
 
-            // Assign teacher to course
+            Course course = courseDAO.findById(courseId);
+            if (course != null) {
+                ObjectId previousTeacherId = course.getAssignedTeacher();
+                if (previousTeacherId != null && !previousTeacherId.equals(teacherId)) {
+                    teacherDAO.removeCourseFromTeacher(previousTeacherId, courseId);
+                }
+            }
+
             courseDAO.assignTeacherToCourse(courseId, teacherId);
             teacherDAO.addCourseToTeacher(teacherId, courseId);
 
             response.getWriter().write("{\"success\": true, \"message\": \"Teacher assigned to course successfully\"}");
 
         } catch (IllegalArgumentException e) {
-            // Handle invalid ObjectId format
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter()
                     .write("{\"success\": false, \"error\": \"Invalid ID format: " + e.getMessage() + "\"}");

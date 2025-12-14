@@ -10,17 +10,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bson.Document;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.cms.config.DBconfig;
 import com.cms.dao.StudentDAO;
 import com.cms.model.Student;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -95,7 +89,6 @@ public class StudentProfileServlet extends HttpServlet {
         if (student == null)
             return;
 
-        // Return JSON profile (without profileImage)
         String json = String.format(
                 "{\"success\": true, \"profile\": {\"fullname\":\"%s\",\"username\":\"%s\",\"email\":\"%s\"}}",
                 escapeJson(student.getFullname()),
@@ -104,61 +97,6 @@ public class StudentProfileServlet extends HttpServlet {
         out.print(json);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter out = response.getWriter();
-
-        Student student = authenticateStudent(request, response, out);
-        if (student == null)
-            return;
-
-        try {
-            // Get form data
-            String fullname = request.getParameter("fullname");
-            String newUsername = request.getParameter("username");
-            String email = request.getParameter("email");
-            String password = request.getParameter("password");
-
-            // Check username conflict
-            if (!student.getUsername().equals(newUsername)) {
-                if (studentDAO.findByUsername(newUsername) != null) {
-                    out.print("{\"success\": false, \"message\": \"Username already taken\"}");
-                    return;
-                }
-            }
-
-            // Update student
-            student.setFullname(fullname);
-            student.setUsername(newUsername);
-            student.setEmail(email);
-            if (password != null && !password.isEmpty())
-                student.setPassword(password);
-
-            // Update MongoDB
-            MongoDatabase database = DBconfig.getDatabase();
-            MongoCollection<Document> studentCollection = database.getCollection("students");
-            Document updateDoc = new Document()
-                    .append("fullname", student.getFullname())
-                    .append("username", student.getUsername())
-                    .append("email", student.getEmail());
-
-            if (password != null && !password.isEmpty())
-                updateDoc.append("password", student.getPassword());
-
-            studentCollection.updateOne(Filters.eq("_id", student.get_id()), new Document("$set", updateDoc));
-
-            out.print("{\"success\": true, \"message\": \"Profile updated successfully\"}");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.print("{\"success\": false, \"message\": \"Internal server error\"}");
-        }
-    }
 
     private String escapeJson(String value) {
         if (value == null)

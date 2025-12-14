@@ -47,6 +47,11 @@ public class TeacherDAO {
                 Filters.eq("_id", teacherId),
                 Updates.addToSet("courses", courseId));
     }
+    public void removeCourseFromTeacher(ObjectId teacherId, ObjectId courseId) {
+        teacherCollection.updateOne(
+                Filters.eq("_id", teacherId),
+                Updates.pull("courses", courseId));
+    }
 
     public Teacher findById(ObjectId teacherId) {
         Document doc = teacherCollection.find(Filters.eq("_id", teacherId)).first();

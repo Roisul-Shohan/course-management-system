@@ -45,9 +45,6 @@ public class TeacherCoursesServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            // Validate environment and database connection first
-            validateEnvironment();
-            // Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -65,7 +62,6 @@ public class TeacherCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
@@ -75,14 +71,12 @@ public class TeacherCoursesServlet extends HttpServlet {
             String username = decoded.getSubject();
             String role = decoded.getClaim("role").asString();
 
-            // Verify user is a teacher
             if (!"teacher".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"success\": false, \"message\": \"Access denied\"}");
                 return;
             }
 
-            // Get teacher by username
             Teacher teacher = teacherDAO.findByUsername(username);
             if (teacher == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -90,7 +84,6 @@ public class TeacherCoursesServlet extends HttpServlet {
                 return;
             }
 
-            // Get courses for this teacher
             List<ObjectId> courseIds = teacher.getCourses();
             List<Course> courses = new ArrayList<>();
 
@@ -101,7 +94,6 @@ public class TeacherCoursesServlet extends HttpServlet {
                 }
             }
 
-            // Build JSON response
             StringBuilder json = new StringBuilder();
             json.append("{\"success\": true, \"courses\": [");
 
@@ -140,23 +132,4 @@ public class TeacherCoursesServlet extends HttpServlet {
                 .replace("\t", "\\t");
     }
 
-    private void validateEnvironment() throws Exception {
-        // Check if .env file exists and has required variables
-        try {
-            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-            String jwtSecret = dotenv.get("JWT_SECRET");
-            if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
-                throw new Exception("JWT_SECRET not found in environment variables");
-            }
-        } catch (Exception e) {
-            throw new Exception("Environment configuration error: " + e.getMessage());
-        }
-
-        // Test database connection
-        try {
-            teacherDAO.findByUsername("test"); // Simple query to test connection
-        } catch (Exception e) {
-            throw new Exception("Database connection error: " + e.getMessage());
-        }
-    }
 }

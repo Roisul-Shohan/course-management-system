@@ -184,46 +184,17 @@
                 errorBanner.textContent = message;
                 errorBanner.style.display = 'block';
                 errorBanner.style.opacity = '1';
-                // Auto-hide after 1 second
+                // Auto-hide after 3 seconds
                 setTimeout(() => {
                     errorBanner.style.transition = 'opacity 300ms ease';
                     errorBanner.style.opacity = '0';
                     setTimeout(() => {
                         errorBanner.style.display = 'none';
                     }, 300);
-                }, 1000);
+                }, 3000);
             }
 
-            // Handle form submission via AJAX
-            document.getElementById('signupForm').addEventListener('submit', function (e) {
-                e.preventDefault(); // Prevent default form submission
-
-                const formData = new FormData(this);
-
-                fetch('SignupServlet', {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Redirect on success
-                            window.location.href = data.redirect;
-                        } else {
-                            // Show error message
-                            showError(data.error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showError('An unexpected error occurred');
-                    });
-            });
-
-            // Auto-hide error banner after 1 second (for server-side errors)
+            // Auto-hide error banner after 3 seconds (for server-side errors)
             (function () {
                 const b = document.getElementById('error-banner');
                 if (b && b.textContent.trim() !== '') {
@@ -231,7 +202,7 @@
                         b.style.transition = 'opacity 300ms ease';
                         b.style.opacity = '0';
                         setTimeout(() => b.style.display = 'none', 400);
-                    }, 1000);
+                    }, 3000);
                 }
             })();
         </script>

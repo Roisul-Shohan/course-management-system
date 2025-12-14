@@ -27,28 +27,23 @@ public class SignupServlet extends HttpServlet {
             studentDAO = new StudentDAO();
             teacherDAO = new TeacherDAO();
         } catch (Exception e) {
-            // Error initializing SignupServlet
+            System.out.println("shs");
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Get form parameters
         String fullname = request.getParameter("fullname");
         String username = request.getParameter("username");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmpassword = request.getParameter("confirmpassword");
-        String role = request.getParameter("role"); // "student" or "teacher"
+        String role = request.getParameter("role"); 
 
-        // Check if request is AJAX
         String isAjax = request.getHeader("X-Requested-With");
         boolean ajax = "XMLHttpRequest".equals(isAjax);
 
-        // Process signup parameters
-
-        // Check if DAOs are initialized
         if (studentDAO == null || teacherDAO == null) {
             System.err.println("Database connection failed. DAOs not initialized.");
             if (ajax) {
@@ -76,7 +71,7 @@ public class SignupServlet extends HttpServlet {
             }
         }
 
-        // Check if username already exists
+
         if (role.equals("student") && studentDAO.findByUsername(username) != null) {
             if (ajax) {
                 response.setContentType("application/json");
@@ -113,32 +108,28 @@ public class SignupServlet extends HttpServlet {
         }
 
 
-        // Create user and save to DB
         try {
-            long saveStartTime = System.currentTimeMillis();
+          
             if (role.equals("student")) {
                 Student student = new Student();
                 student.setFullname(fullname);
                 student.setUsername(username);
                 student.setEmail(email);
-                student.setPassword(password); // This will hash the password
+                student.setPassword(password);
                 studentDAO.save(student);
             } else if (role.equals("teacher")) {
                 Teacher teacher = new Teacher();
                 teacher.setFullname(fullname);
                 teacher.setUsername(username);
                 teacher.setEmail(email);
-                teacher.setPassword(password); // This will hash the password
+                teacher.setPassword(password);
                 teacherDAO.save(teacher);
             }
-            long saveEndTime = System.currentTimeMillis();
-            System.out.println("SignupServlet: Save operation took " + (saveEndTime - saveStartTime) + " ms");
-
             String token = JWTconfig.generateToken(username, role);
 
             javax.servlet.http.Cookie jwtCookie = new javax.servlet.http.Cookie("jwt", token);
-            jwtCookie.setHttpOnly(true); // cannot be accessed by JavaScript
-            jwtCookie.setMaxAge(24 * 60 * 60); // 24 hours
+            jwtCookie.setHttpOnly(true); 
+            jwtCookie.setMaxAge(24 * 60 * 60);
             jwtCookie.setPath("/");
             response.addCookie(jwtCookie);
 
@@ -173,7 +164,6 @@ public class SignupServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Just forward to signup.jsp if someone visits /signup via GET
         request.getRequestDispatcher("signup.jsp").forward(request, response);
     }
 }

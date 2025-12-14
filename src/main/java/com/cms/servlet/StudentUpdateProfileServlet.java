@@ -2,7 +2,6 @@ package com.cms.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,7 +28,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 @WebServlet("/StudentUpdateProfileServlet")
 public class StudentUpdateProfileServlet extends HttpServlet {
 
-    private static final Logger logger = Logger.getLogger(StudentUpdateProfileServlet.class.getName());
     private StudentDAO studentDAO;
 
     @Override
@@ -46,7 +44,6 @@ public class StudentUpdateProfileServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            // 1. Get JWT token from cookies
             String token = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -64,14 +61,13 @@ public class StudentUpdateProfileServlet extends HttpServlet {
                 return;
             }
 
-            // 2. Validate JWT token
             Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
             String secret = dotenv.get("JWT_SECRET");
             DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
                     .build()
                     .verify(token);
 
-            String username = decoded.getSubject(); // current username
+            String username = decoded.getSubject(); 
             String role = decoded.getClaim("role").asString();
 
             if (!"student".equals(role)) {
@@ -80,11 +76,10 @@ public class StudentUpdateProfileServlet extends HttpServlet {
                 return;
             }
 
-            // 3. Get form data
             String fullname = request.getParameter("fullname");
             String newUsername = request.getParameter("username");
             String email = request.getParameter("email");
-            String password = request.getParameter("password"); // optional
+            String password = request.getParameter("password"); 
 
             if (fullname == null || fullname.trim().isEmpty()) {
                 out.print("{\"success\": false, \"message\": \"Full name is required\"}");
@@ -99,7 +94,6 @@ public class StudentUpdateProfileServlet extends HttpServlet {
                 return;
             }
 
-            // 4. Get current student from DB
             Student student = studentDAO.findByUsername(username);
             if (student == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -107,24 +101,22 @@ public class StudentUpdateProfileServlet extends HttpServlet {
                 return;
             }
 
-            // 5. Check username change
-            if (!username.equals(newUsername)) { // username changed
+
+            if (!username.equals(newUsername)) { 
                 Student existing = studentDAO.findByUsername(newUsername);
                 if (existing != null) {
                     out.print("{\"success\": false, \"message\": \"Username already taken\"}");
                     return;
                 }
-                student.setUsername(newUsername); // update username
+                student.setUsername(newUsername); 
             }
 
-            // 6. Update other fields
             student.setFullname(fullname);
             student.setEmail(email);
             if (password != null && !password.trim().isEmpty()) {
-                student.setPassword(password); // hash in DAO
+                student.setPassword(password); 
             }
 
-            // 7. Update in database
             MongoDatabase database = DBconfig.getDatabase();
             MongoCollection<Document> studentCollection = database.getCollection("students");
 
@@ -138,7 +130,6 @@ public class StudentUpdateProfileServlet extends HttpServlet {
 
             studentCollection.updateOne(Filters.eq("_id", student.get_id()), new Document("$set", updateDoc));
 
-            // 8. Generate new JWT if username changed
             if (!username.equals(newUsername)) {
                 String newToken = JWTconfig.generateToken(newUsername, "student");
                 Cookie jwtCookie = new Cookie("jwt", newToken);
