@@ -1,6 +1,7 @@
 package com.cms.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import com.cms.config.JWTconfig;
 import com.cms.dao.CourseDAO;
 import com.cms.dao.StudentDAO;
 import com.cms.model.Course;
@@ -35,6 +38,34 @@ public class AdminStudentServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (token == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            out.print("{\"success\": false, \"message\": \"Unauthorized\"}");
+            return;
+        }
+        if (!JWTconfig.isTokenValid(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            out.print("{\"success\": false, \"message\": \"Invalid token\"}");
+            return;
+        }
+        String role = JWTconfig.getRoleFromToken(token);
+        if (!"admin".equals(role)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.print("{\"success\": false, \"message\": \"Access denied\"}");
+            return;
+        }
 
         try {
 
@@ -67,12 +98,17 @@ public class AdminStudentServlet extends HttpServlet {
 
             cursor.close();
 
-            String json = objectMapper.writeValueAsString(students);
-            response.getWriter().write(json);
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("success", true);
+            responseData.put("students", students);
+
+            String json = objectMapper.writeValueAsString(responseData);
+            out.print(json);
 
         } catch (Exception e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Failed to fetch students\"}");
+            out.print("{\"success\": false, \"message\": \"Internal server error\"}");
         }
     }
 }

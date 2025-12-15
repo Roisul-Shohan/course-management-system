@@ -33,7 +33,6 @@ A comprehensive web-based application for managing educational courses, students
 - Java Development Kit (JDK) 11 or higher
 - Apache Maven 3.8.4 or higher
 - MongoDB (local installation or cloud instance like MongoDB Atlas)
-- Docker (optional, for containerized deployment)
 
 ## Installation
 
@@ -88,20 +87,6 @@ A comprehensive web-based application for managing educational courses, students
 
 ## Deployment
 
-### Using Docker
-
-1. **Build the Docker Image**:
-   ```bash
-   docker build -t course-management-system .
-   ```
-
-2. **Run the Container**:
-   ```bash
-   docker run -p 8080:8080 --env-file .env course-management-system
-   ```
-
-3. **Access the Application**:
-   - The application will be available at `http://localhost:8080`
 
 ### Manual Deployment to Tomcat
 

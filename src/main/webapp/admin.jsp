@@ -8,7 +8,6 @@
     }
 %>
 
-
                         <!DOCTYPE html>
                         <html lang="en">
 
@@ -326,9 +325,41 @@
 
                                         <!-- Course Students Content -->
                                         <div id="course-students-content" class="hidden">
-                                            <h2 class="text-xl font-bold mb-4">Course Students</h2>
-                                            <div id="course-students-list" class="space-y-2">
-                                              
+                                            <div class="flex justify-between items-center mb-8">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                                        <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h2 class="text-2xl font-bold text-white">Course Students</h2>
+                                                        <p class="text-sm text-gray-400">Students enrolled in this course</p>
+                                                    </div>
+                                                </div>
+                                                <button id="back-to-courses-admin"
+                                                    class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-gray-300 hover:text-white border border-slate-600 flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                                    </svg>
+                                                    Back to Courses
+                                                </button>
+                                            </div>
+
+                                            <!-- Student Count -->
+                                            <div class="mb-6">
+                                                <div class="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-xl p-4 border border-slate-600/30">
+                                                    <div class="flex items-center justify-center gap-2 text-sm text-gray-400">
+                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                        <span id="student-count-admin">0</span> students enrolled
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="course-students-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                                <!-- Students will be loaded here -->
                                             </div>
                                         </div>
                                     </div>

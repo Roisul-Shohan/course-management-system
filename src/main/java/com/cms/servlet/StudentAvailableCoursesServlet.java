@@ -12,17 +12,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.cms.config.JWTconfig;
 import com.cms.dao.CourseDAO;
 import com.cms.dao.StudentDAO;
 import com.cms.dao.TeacherDAO;
 import com.cms.model.Course;
 import com.cms.model.Student;
 import com.cms.model.Teacher;
-
-import io.github.cdimascio.dotenv.Dotenv;
 
 @WebServlet("/StudentAvailableCoursesServlet")
 public class StudentAvailableCoursesServlet extends HttpServlet {
@@ -47,8 +43,8 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            String token = null;
             Cookie[] cookies = request.getCookies();
+            String token = null;
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("jwt".equals(cookie.getName())) {
@@ -57,32 +53,28 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
                     }
                 }
             }
-
             if (token == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                out.print("{\"success\": false, \"message\": \"No authentication token found\"}");
+                out.print("{\"message\": \"Unauthorized\"}");
                 return;
             }
-
-            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-            String secret = dotenv.get("JWT_SECRET");
-            DecodedJWT decoded = JWT.require(Algorithm.HMAC256(secret))
-                    .build()
-                    .verify(token);
-
-            String username = decoded.getSubject();
-            String role = decoded.getClaim("role").asString();
-
+            if (!JWTconfig.isTokenValid(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                out.print("{\"message\": \"Invalid token\"}");
+                return;
+            }
+            String role = JWTconfig.getRoleFromToken(token);
             if (!"student".equals(role)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                out.print("{\"success\": false, \"message\": \"Access denied\"}");
+                out.print("{\"message\": \"Access denied\"}");
                 return;
             }
 
+            String username = JWTconfig.getUsernameFromToken(token);
             Student student = studentDAO.findByUsername(username);
             if (student == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                out.print("{\"success\": false, \"message\": \"Student not found\"}");
+                out.print("{\"message\": \"Student not found\"}");
                 return;
             }
 
@@ -132,7 +124,7 @@ public class StudentAvailableCoursesServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.print("{\"success\": false, \"message\": \"Internal server error\"}");
+            out.print("{\"message\": \"Internal server error\"}");
         }
     }
 

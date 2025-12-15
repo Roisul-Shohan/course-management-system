@@ -353,7 +353,7 @@
                                     fetch('TeacherCoursesServlet')
                                         .then(response => response.json())
                                         .then(data => {
-                                            if (data.success) {
+                                            if (data.success && data.courses) {
                                                 document.getElementById('courses-taught').textContent = data.courses.length;
                                                 let totalStudents = 0;
                                                 data.courses.forEach(course => {
@@ -361,15 +361,14 @@
                                                 });
                                                 document.getElementById('students-enrolled').textContent = totalStudents;
                                             } else {
-                                                console.error('Failed to load teacher stats:', data.message);
                                                 document.getElementById('courses-taught').textContent = '0';
                                                 document.getElementById('students-enrolled').textContent = '0';
                                             }
                                         })
                                         .catch(error => {
-                                            console.error('Error loading teacher stats:', error);
-                                            document.getElementById('courses-taught').textContent = '0';
-                                            document.getElementById('students-enrolled').textContent = '0';
+                                            console.error('Error loading teacher stats:', error || 'Unknown error');
+                                            document.getElementById('courses-taught').textContent = 'Error';
+                                            document.getElementById('students-enrolled').textContent = 'Error';
                                         });
                                 }
 

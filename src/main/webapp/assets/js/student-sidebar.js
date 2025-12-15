@@ -4,39 +4,73 @@ const contentSections = document.querySelectorAll('#main-content > div');
 
 window.addEventListener('load', function () {
     loadStudentStats();
-
 });
+
+sidebarLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        sidebarLinks.forEach(l => l.classList.remove('bg-blue-600', 'text-white'));
+        sidebarLinks.forEach(l => l.classList.add('text-gray-300'));
+
+        this.classList.add('bg-blue-600', 'text-white');
+        this.classList.remove('text-gray-300');
+
+        contentSections.forEach(section => section.classList.add('hidden'));
+
+        const sectionId = this.getAttribute('data-section') + '-content';
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+
+            switch (this.getAttribute('data-section')) {
+                case 'my-courses':
+                    loadMyCourses();
+                    break;
+                case 'register-course':
+                    loadAvailableCourses();
+                    break;
+                case 'available-courses':
+                    loadAvailableCoursesList();
+                    break;
+                case 'edit-profile':
+                    loadProfileData();
+                    break;
+                case 'dashboard':
+                    const defaultContent = document.getElementById('dashboard-content');
+                    if (defaultContent) defaultContent.classList.remove('hidden');
+                    break;
+            }
+        } else {
+            const defaultContent = document.getElementById('dashboard-content');
+            if (defaultContent) defaultContent.classList.remove('hidden');
+        }
+    });
+});
+
 
 function loadStudentStats() {
     const enrolledCoursesElement = document.getElementById('enrolled-courses');
 
     fetch('StudentCoursesServlet', {
         method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' }
+        credentials: 'same-origin'
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             if (enrolledCoursesElement) {
                 enrolledCoursesElement.textContent = data.courses.length;
-            } else {
-                console.error('Enrolled courses element not found');
             }
         } else {
             if (enrolledCoursesElement) {
                 enrolledCoursesElement.textContent = '0';
-            } else {
-                console.error('Enrolled courses element not found');
             }
         }
     })
     .catch(error => {
-        console.error('Error loading enrolled courses count:', error);
         if (enrolledCoursesElement) {
             enrolledCoursesElement.textContent = '0';
-        } else {
-            console.error('Enrolled courses element not found');
         }
     });
 }
@@ -48,8 +82,7 @@ function loadAvailableCourses() {
 
     fetch('StudentAvailableCoursesServlet', {
         method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' }
+        credentials: 'same-origin'
     })
         .then(response => {
             return response.json();
@@ -113,48 +146,6 @@ function loadAvailableCourses() {
     };
 }
 
-sidebarLinks.forEach(link => {
-    link.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        sidebarLinks.forEach(l => l.classList.remove('bg-blue-600', 'text-white'));
-        sidebarLinks.forEach(l => l.classList.add('text-gray-300'));
-
-        this.classList.add('bg-blue-600', 'text-white');
-        this.classList.remove('text-gray-300');
-
-        contentSections.forEach(section => section.classList.add('hidden'));
-
-        const sectionId = this.getAttribute('data-section') + '-content';
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.remove('hidden');
-
-            switch (this.getAttribute('data-section')) {
-                case 'my-courses':
-                    loadMyCourses();
-                    break;
-                case 'register-course':
-                    loadAvailableCourses();
-                    break;
-                case 'available-courses':
-                    loadAvailableCoursesList();
-                    break;
-                case 'edit-profile':
-                    loadProfileData();
-                    break;
-                case 'dashboard':
-                    const defaultContent = document.getElementById('dashboard-content');
-                    if (defaultContent) defaultContent.classList.remove('hidden');
-                    break;
-            }
-        } else {
-            const defaultContent = document.getElementById('dashboard-content');
-            if (defaultContent) defaultContent.classList.remove('hidden');
-        }
-    });
-});
-
 
 function loadProfileData() {
     const form = document.getElementById('edit-profile-form');
@@ -163,8 +154,7 @@ function loadProfileData() {
 
     fetch('StudentProfileServlet', {
         method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' }
+        credentials: 'same-origin'
     })
         .then(res => res.json())
         .then(data => {
@@ -192,15 +182,15 @@ function loadProfileData() {
 
 
         if (!fullname) {
-            messageDiv.innerHTML = '<p class="text-red-400">Fullname is required</p>';
+            messageDiv.innerHTML = '<p class="text-red-600">Fullname is required</p>';
             return;
         }
         if (!username) {
-            messageDiv.innerHTML = '<p class="text-red-400">Username is required</p>';
+            messageDiv.innerHTML = '<p class="text-red-600">Username is required</p>';
             return;
         }
         if (!email) {
-            messageDiv.innerHTML = '<p class="text-red-400">Email is required</p>';
+            messageDiv.innerHTML = '<p class="text-red-600">Email is required</p>';
             return;
         }
 
@@ -220,25 +210,21 @@ function loadProfileData() {
         })
             .then(res => res.json())
             .then(data => {
+                console.log('data.success:', data.success);
+                console.log('data.message:', data.message);
                 if (data.success) {
-                    alert('Profile updated successfully!');
-                    messageDiv.innerHTML = '<p class="text-green-400">Profile updated successfully!</p>';
-                    loadProfileData(); 
-
-                    document.getElementById('edit-profile-content').classList.add('hidden');
-                    document.getElementById('dashboard-content').classList.remove('hidden');
-                
-                    sidebarLinks.forEach(link => {
-                        link.classList.remove('bg-blue-600', 'text-white');
-                        link.classList.add('text-gray-300');
-                    });
+                    messageDiv.innerHTML = '<p class="text-green-600">Profile updated successfully!</p>';
+                    setTimeout(() => {
+                        messageDiv.innerHTML = '';
+                        location.reload();
+                    }, 3000);
                 } else {
-                    messageDiv.innerHTML = `<p class="text-red-400">${data.message}</p>`;
+                    messageDiv.innerHTML = `<p class="text-red-600">${data.message}</p>`;
                 }
             })
             .catch(err => {
                 console.error(err);
-                messageDiv.innerHTML = `<p class="text-red-400">${err.message}</p>`;
+                messageDiv.innerHTML = `<p class="text-red-600">${err.message}</p>`;
             });
     };
 }
@@ -249,8 +235,7 @@ function loadMyCourses() {
 
     fetch('StudentCoursesServlet', {
         method: 'GET',
-        credentials: 'same-origin', 
-        headers: { 'Content-Type': 'application/json' }
+        credentials: 'same-origin'
     })
         .then(response => response.json())
         .then(data => {
@@ -269,8 +254,7 @@ function loadAvailableCoursesList() {
 
     fetch('StudentAvailableCoursesServlet', {
         method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' }
+        credentials: 'same-origin'
     })
         .then(response => response.json())
         .then(data => {
@@ -337,7 +321,6 @@ function displayAvailableCourses(courses) {
     const coursesList = document.getElementById('available-courses-list');
     coursesList.innerHTML = html;
 
-    // Add event listeners
     document.querySelectorAll('.enroll-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const courseId = this.getAttribute('data-course-id');
@@ -362,9 +345,7 @@ function enrollInCourse(courseId) {
     .then(data => {
         if (data.success) {
             alert('Successfully enrolled in the course!');
-            // Refresh the list
             loadAvailableCoursesList();
-            // Update enrolled courses count
             loadStudentStats();
         } else {
             alert('Error: ' + (data.error || 'Failed to enroll'));
@@ -394,7 +375,7 @@ function displayCourses(courses) {
         return;
     }
 
-    // Color schemes for different courses
+    
     const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
     let html = '';
     courses.forEach((course, index) => {

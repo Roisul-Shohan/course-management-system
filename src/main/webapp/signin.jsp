@@ -57,7 +57,6 @@
     </head>
 
     <body class="min-h-screen bg-slate-900 text-white relative ">
-        <!-- Grid Pattern Background -->
         <div class="grid-pattern"></div>
 
         <!-- Header -->
@@ -72,7 +71,6 @@
                     </a>
                 </div>
 
-                <!-- Right side: Sign Up button -->
                 <div class="flex items-center">
                     <a href="signup.jsp"
                         class="ml-4 inline-block px-4 py-2 bg-transparent border border-blue-500 text-blue-300 rounded hover:bg-blue-600 hover:text-white transition-colors">

@@ -1,8 +1,6 @@
 package com.cms.servlet;
 
 import java.io.IOException;
-import java.util.Date;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,8 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.cms.config.JWTconfig;
 import com.cms.dao.StudentDAO;
 import com.cms.dao.TeacherDAO;
@@ -23,7 +19,6 @@ import com.cms.model.Teacher;
 @WebServlet("/signin")
 public class SignInServlet extends HttpServlet {
 
-    private String SECRET;
     private StudentDAO studentDAO;
     private TeacherDAO teacherDAO;
 
@@ -32,10 +27,6 @@ public class SignInServlet extends HttpServlet {
         try {
             studentDAO = new StudentDAO();
             teacherDAO = new TeacherDAO();
-            SECRET = JWTconfig.getSecret();
-            if (SECRET == null || SECRET.isEmpty()) {
-                throw new RuntimeException("JWT_SECRET environment variable is not set");
-            }
         } catch (Exception e) {
             System.err.println("Error initializing SignupServlet: " + e.getMessage());
             e.printStackTrace();
@@ -63,13 +54,7 @@ public class SignInServlet extends HttpServlet {
                         return;
                     }
 
-                    Algorithm algorithm = Algorithm.HMAC256(SECRET);
-                    String token = JWT.create()
-                        .withSubject(student.getUsername())
-                        .withClaim("role", "student")
-                        .withIssuedAt(new Date())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-                        .sign(algorithm);
+                    String token = JWTconfig.generateToken(student.getUsername(), "student");
                    
                     javax.servlet.http.Cookie jwtCookie = new javax.servlet.http.Cookie("jwt", token);
                     jwtCookie.setHttpOnly(true);
@@ -104,13 +89,7 @@ public class SignInServlet extends HttpServlet {
                         return;
                     }
 
-                    Algorithm algorithm = Algorithm.HMAC256(SECRET);
-                    String token = JWT.create()
-                        .withSubject(teacher.getUsername())
-                        .withClaim("role", "teacher")
-                        .withIssuedAt(new Date())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-                        .sign(algorithm);
+                    String token = JWTconfig.generateToken(teacher.getUsername(), "teacher");
                    
 
                     javax.servlet.http.Cookie jwtCookie = new javax.servlet.http.Cookie("jwt", token);
@@ -135,13 +114,7 @@ public class SignInServlet extends HttpServlet {
         } else if (role.equals("admin")) {
            
             if (username.equals("admin") && password.equals("aaa")) {
-                Algorithm algorithm = Algorithm.HMAC256(SECRET);
-                String token = JWT.create()
-                    .withSubject("admin")
-                    .withClaim("role", "admin")
-                    .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-                    .sign(algorithm);
+                String token = JWTconfig.generateToken("admin", "admin");
                 
                 javax.servlet.http.Cookie jwtCookie = new javax.servlet.http.Cookie("jwt", token);
                 jwtCookie.setHttpOnly(true);

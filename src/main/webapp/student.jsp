@@ -109,7 +109,20 @@ Student studentObj = (Student) session.getAttribute("student");
                                             <div class="px-6 mb-8">
                                                 <h2 class="text-xl font-bold text-blue-300 mb-6">Student Panel</h2>
                                                 <nav class="space-y-2">
-                                                    <a href="#" class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors" data-section="dashboard"> <svg xmlns="http://www.w3.org/2000/svg" class="inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" /> </svg> Dashboard </a>
+                                                    <a href="#" 
+                                                        class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
+                                                         data-section="dashboard"> 
+                                                         <svg xmlns="http://www.w3.org/2000/svg"
+                                                          class="inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                                           stroke="currentColor"> 
+                                                           <path stroke-linecap="round" 
+                                                           stroke-linejoin="round" 
+                                                           stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" 
+                                                            stroke-width="2" 
+                                                            d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" /> </svg>
+                                                             Dashboard 
+                                                    </a>
                                                     <a href="#"
                                                         class="sidebar-link block px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
                                                         data-section="my-courses">
@@ -205,15 +218,8 @@ Student studentObj = (Student) session.getAttribute("student");
 
 
 
-                                                        <!-- Recent Activity -->
-                                                        <div class="">
-                                                            <div id="recent-activity-list" class="space-y-3">
-                                                                <!-- Activities will be loaded here dynamically -->
-                                                                <div>
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                        
+                                                        
                                                     </div>
                                                 </div>
 
@@ -310,7 +316,7 @@ Student studentObj = (Student) session.getAttribute("student");
 
 
 
-                                    <script src="assets/js/student-sidebar.js?v=3"></script>
+                                    <script src="assets/js/student-sidebar.js?v=4"></script>
 
 
 
